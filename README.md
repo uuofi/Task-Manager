@@ -93,3 +93,4 @@ same MongoDB Atlas cluster (and allow their IPs under Atlas → Network Access).
 | `npm run seed` | Wipe + seed demo data (dev only) |
 | `npm run build` | Production build of the client |
 | `npm run lint` | Lint both apps |
+# Qrtise
