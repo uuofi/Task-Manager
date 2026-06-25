@@ -1,100 +1,95 @@
-# TaskControl — Team Task Management Platform
+# TaskControl
 
-A production-grade, real-time team task management platform (think Linear / ClickUp)
-built with a clean-architecture Node.js/Express/MongoDB backend and a React 19 + Vite frontend.
+A real-time team task management platform (in the spirit of Linear / ClickUp).
+Teams organize work into projects and Kanban boards, manage tasks with statuses,
+priorities, assignees, due dates, dependencies and checklists, track time with a
+built-in timer, collaborate through threaded comments, and stay in sync via live
+updates, presence and notifications.
 
-## Monorepo layout
+Built as a monorepo with a clean-architecture Node.js/Express/MongoDB API and a
+React 19 + Vite single-page app.
+
+## Architecture
 
 ```
 tasckControl/
-├── server/          # Express API — clean architecture (routes → controllers → services → repositories → models)
+├── server/          # Express REST API + Socket.IO (clean architecture)
 ├── client/          # React 19 + Vite SPA
-└── design-system/   # Persisted design system (source of truth for UI)
+└── design-system/   # Source-of-truth design tokens for the UI
 ```
 
-## Tech stack
+**Backend** — layered clean architecture, each layer with a single responsibility:
 
-**Backend:** Node.js, Express, MongoDB/Mongoose, JWT (access + refresh), bcrypt, Socket.IO,
-Multer, express-validator, Helmet, rate limiting, Winston.
+```
+routes → controllers → services → repositories → models (Mongoose)
+```
 
-**Frontend:** React 19, Vite, React Router, TanStack Query, Axios, Tailwind v4, shadcn/ui,
-React Hook Form, Zod, Framer Motion, @dnd-kit, Recharts.
+- **routes** map HTTP endpoints to controllers and attach validation/auth middleware.
+- **controllers** are thin: parse the request, call a service, shape the response.
+- **services** hold all business logic (the only layer that orchestrates rules).
+- **repositories** are the only layer that touches the database.
+- **models** define Mongoose schemas.
 
-## Quick start
+Cross-cutting concerns are isolated as their own services: activity log,
+notifications, email, file storage (a swappable driver — local disk today, S3/Cloudinary later),
+and a decoupled realtime emitter. Security is handled by middleware: JWT auth
+(in-memory access token + httpOnly refresh cookie), role-based access control
+(`owner › admin › manager › member`), Helmet, CORS allow-list, rate limiting,
+mongo-sanitize and HPP.
 
-Requires **Node ≥ 20** and a running **MongoDB** (local or Atlas).
+**Realtime** — Socket.IO with a JWT-authenticated handshake and per-user / workspace /
+project rooms. Services emit through the shared emitter so any mutation can stream
+live to connected clients (updates, presence, typing indicators).
+
+**Frontend** — React 19 + Vite. TanStack Query manages server state over an Axios
+client, React Router handles routing, Tailwind v4 + shadcn/ui provide the UI, and a
+Socket.IO client keeps the app in sync in real time.
+
+**Tech stack** — Node.js, Express, MongoDB/Mongoose, JWT, Socket.IO, Multer, Winston ·
+React 19, Vite, React Router, TanStack Query, Axios, Tailwind v4, shadcn/ui, Zustand, Recharts.
+
+## Running the project
+
+**Prerequisites:** Node ≥ 20 and a MongoDB database (local or MongoDB Atlas).
 
 ```bash
-# 1. Install both apps
+# 1. Install both apps (server + client)
 npm run install:all
 
 # 2. Configure the backend
-cd server && cp .env.example .env   # then set MONGODB_URI + secrets
+cd server
+cp .env.example .env      # then fill in MONGODB_URI + the JWT/cookie secrets
 cd ..
 
-# 3. Seed demo data (optional but recommended)
+# 3. (Optional) Seed demo data — wipes the database, run once
 npm run seed
 
 # 4. Run client + server together
 npm run dev
 ```
 
-- API: http://localhost:5050/api/v1  (health: `/health`)
-- App: http://localhost:5173
+- API: `http://localhost:5050/api/v1`  (health check: `/health`)
+- App: `http://localhost:5173`
 
-The Vite dev server proxies `/api`, `/uploads`, and `/socket.io` to the backend.
+The Vite dev server proxies `/api`, `/uploads` and `/socket.io` to the backend.
 
-### Demo accounts (after `npm run seed`)
+### Environment variables
 
-| Email | Password | Role |
-|-------|----------|------|
-| owner@taskcontrol.app | `Password1` | Owner |
-| alice@taskcontrol.app | `Password1` | Admin |
-| bob@taskcontrol.app | `Password1` | Manager |
-| carol@taskcontrol.app | `Password1` | Member |
+The server will not start without a valid `.env`. The required values are
+`MONGODB_URI`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` and `COOKIE_SECRET`.
+See [server/.env.example](server/.env.example) for the full, documented list.
 
-## Root scripts
+To share one database across the whole team, point everyone's `MONGODB_URI` at the
+same MongoDB Atlas cluster (and allow their IPs under Atlas → Network Access).
+`.env` is git-ignored — never commit it.
+
+### Root scripts
 
 | Script | Description |
 |--------|-------------|
-| `npm run install:all` | Install server + client deps |
-| `npm run dev` | Run both apps (concurrently) |
-| `npm run dev:server` / `npm run dev:client` | Run one app |
+| `npm run install:all` | Install server + client dependencies |
+| `npm run dev` | Run both apps together |
+| `npm run dev:server` / `npm run dev:client` | Run a single app |
 | `npm run seed` | Wipe + seed demo data (dev only) |
 | `npm run build` | Production build of the client |
 | `npm run lint` | Lint both apps |
-
-## Architecture highlights
-
-- **Clean architecture** on the server: thin controllers → services (business logic) →
-  repositories (data access) → Mongoose models. Cross-cutting concerns (activity log,
-  notifications, realtime) are isolated services.
-- **Security:** Helmet, CORS all-list, rate limiting (stricter on auth), mongo-sanitize, HPP,
-  in-memory access token + httpOnly/signed refresh cookie, `tokenVersion` session invalidation.
-- **RBAC:** `owner › admin › manager › member`, hierarchy-aware, enforced per mutation.
-- **Realtime:** Socket.IO with JWT-auth handshake, per-user/workspace/project rooms, presence,
-  typing indicators; services emit through a decoupled emitter.
-- **Storage abstraction:** local-disk driver now, swappable to S3/Cloudinary without touching callers.
-- **Design system:** teal + orange (Flat Design, Plus Jakarta Sans) generated and persisted in
-  `design-system/taskcontrol/MASTER.md`, implemented as Tailwind v4 tokens consumed via shadcn/ui.
-
-## Features
-
-Dashboard (charts + widgets) · Projects (boards) · Drag-and-drop Kanban · Task detail
-(status/priority/assignee/dates, **tags**, **recurrence**, **dependencies**, checklist) ·
-Built-in **timer** (start/pause/resume/stop → actual hours) · Threaded comments with reactions &
-mentions · **Realtime** updates, presence & typing · Notifications center · Task suggestions ·
-Team management & invitations · Calendar · Global search · Profile & settings · Light/Dark mode.
-
-## Build status — all steps complete ✅
-
-- [x] **Step 1** — Backend initialization (config, security, logging, error handling, bootstrap)
-- [x] **Step 2** — Frontend initialization (Vite + React 19, Tailwind v4, shadcn/ui, Router, React Query, theming)
-- [x] **Step 3** — Authentication (JWT access/refresh, bcrypt, RBAC, register/login/logout/forgot/reset, auth UI)
-- [x] **Step 4** — Database models (11 collections)
-- [x] **Step 5** — REST APIs (auth, users, workspaces/team, invitations, projects, tasks, timer, comments, attachments, suggestions, notifications, activity, search, dashboard)
-- [x] **Step 6** — Frontend app (shell, dashboard, projects, DnD board, task detail + timer, calendar, team, suggestions, profile, settings, notifications, search)
-- [x] **Step 7** — Socket.IO realtime (auth handshake, rooms, presence, typing, live streaming)
-- [x] **Step 8** — Dashboard (stat cards, status donut, project progress, live activity feed)
-- [x] **Step 9** — Task management (board filters, tags, recurrence, dependencies, checklist, timer)
-- [x] **Step 10** — Notifications (realtime bell + center, mark read/all, deep links)
