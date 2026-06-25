@@ -1,0 +1,6 @@
+{
+  "watch": [".", ".env"],
+  "ext": "js,mjs,json,env",
+  "ignore": ["node_modules", "uploads"],
+  "delay": 500
+}

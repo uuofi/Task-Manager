@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+server/logs/*-audit.json
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+coverage/

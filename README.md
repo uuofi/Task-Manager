@@ -98,4 +98,3 @@ Team management & invitations · Calendar · Global search · Profile & settings
 - [x] **Step 8** — Dashboard (stat cards, status donut, project progress, live activity feed)
 - [x] **Step 9** — Task management (board filters, tags, recurrence, dependencies, checklist, timer)
 - [x] **Step 10** — Notifications (realtime bell + center, mark read/all, deep links)
-# Task-Manager
