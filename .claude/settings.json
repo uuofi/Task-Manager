@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Read(//tmp/**)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:5183/login)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:5183/register)",
+      "Bash(curl -s http://localhost:5183/@vite/client -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:5183/src/pages/auth/RegisterPage.jsx -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:5183/src/pages/auth/AuthPageShell.jsx -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:5183/src/pages/auth/RegisterPage.jsx)",
+      "Bash(curl -s -o /dev/null -w \"root:%{http_code}\\\\n\" http://localhost:5183/)",
+      "Bash(curl -s -o /dev/null -w \"landing-module:%{http_code}\\\\n\" http://localhost:5183/src/pages/LandingPage.jsx)",
+      "Bash(curl -s -o /dev/null -w \"preview-module:%{http_code}\\\\n\" http://localhost:5183/src/components/marketing/DashboardPreview.jsx)",
+      "Bash(curl -s http://localhost:5183/src/components/marketing/DashboardPreview.jsx)",
+      "Bash(curl -s http://localhost:5183/src/pages/LandingPage.jsx)",
+      "Bash(curl -s http://localhost:5183/src/hooks/useTaskJourneyAnimation.js)",
+      "Bash(curl -s http://localhost:5183/src/components/marketing/journey/TaskJourney.jsx)",
+      "Bash(curl -s http://localhost:5183/src/components/marketing/journey/journeyData.js)",
+      "Bash(curl -s -o /dev/null -w \"TaskJourney:%{http_code}\\\\n\" http://localhost:5183/src/components/marketing/journey/TaskJourney.jsx)",
+      "Bash(curl -s -o /dev/null -w \"journeyData:%{http_code}\\\\n\" http://localhost:5183/src/components/marketing/journey/journeyData.js)"
+    ]
+  }
+}

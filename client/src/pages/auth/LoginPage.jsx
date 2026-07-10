@@ -1,18 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import {
-  ArrowRight,
-  ChevronDown,
-  CircleCheck,
-  Eye,
-  EyeOff,
-  LineChart,
-  Lock,
-  Mail,
-  Moon,
-  Sun,
-  Users,
-} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowRight, Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -23,34 +12,17 @@ import { getErrorMessage } from '@/api/axiosClient';
 import logoMark from '@/assets/logo.png';
 import { Spinner } from '@/components/ui/spinner';
 import { useAuthActions } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { loginSchema } from '@/lib/validations';
 
-const BRAND_GRADIENT = 'linear-gradient(105deg, #5A3BFF 0%, #2D7CFF 48%, #00C2A8 100%)';
-
-function Feature({ icon: Icon, title, desc }) {
-  return (
-    <div className="flex items-start gap-4">
-      <div className="border-border bg-foreground/[0.04] text-primary grid size-11 shrink-0 place-items-center rounded-xl border dark:bg-white/5">
-        <Icon className="size-5" />
-      </div>
-      <div>
-        <p className="font-semibold">{title}</p>
-        <p className="text-muted-foreground text-sm">{desc}</p>
-      </div>
-    </div>
-  );
-}
+import { AuthPageShell, BRAND_GRADIENT, fadeUpItem, staggerContainer } from './AuthPageShell';
 
 export function LoginPage() {
   const { t } = useTranslation();
   const { login } = useAuthActions();
-  const { resolvedTheme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [showPw, setShowPw] = useState(false);
 
-  const isDark = resolvedTheme === 'dark';
   const from = location.state?.from;
   const redirectTo = from ? `${from.pathname}${from.search || ''}${from.hash || ''}` : '/app';
 
@@ -73,13 +45,9 @@ export function LoginPage() {
     'border-border bg-foreground/[0.03] focus:border-primary focus:ring-primary/25 h-12 w-full rounded-xl border ps-11 pe-4 text-sm outline-none transition placeholder:text-muted-foreground focus:ring-2 dark:bg-white/5';
 
   return (
-    <div className="bg-background text-foreground relative min-h-dvh overflow-x-hidden">
-      {/* Ambient background — fixed so it always covers the viewport (no seam
-          or black strip when the page scrolls or on short screens). */}
-      <div
-        aria-hidden
-        className="bg-background pointer-events-none fixed inset-0 -z-10 overflow-hidden"
-      >
+    <div className="bg-background text-foreground relative min-h-dvh overflow-hidden">
+      {/* Ambient gradient orbs */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-40 -top-40 size-[34rem] rounded-full bg-[#5A3BFF]/25 blur-[130px]" />
         <div className="absolute -bottom-48 left-1/4 size-[34rem] rounded-full bg-[#00C2A8]/20 blur-[130px]" />
         <div className="absolute -right-32 top-1/3 size-[26rem] rounded-full bg-[#2D7CFF]/10 blur-[130px]" />
@@ -155,104 +123,112 @@ export function LoginPage() {
               />
             </div>
 
-            <h2 className="mt-6 text-center text-2xl font-bold tracking-tight">
-              {t('auth.welcomeBack')}
-            </h2>
-            <p className="text-muted-foreground mt-1.5 text-center text-sm">
-              {t('auth.continueAccount')}
-            </p>
+        <motion.h2
+          variants={fadeUpItem}
+          className="mt-6 text-center text-2xl font-bold tracking-tight"
+        >
+          {t('auth.welcomeBack')}
+        </motion.h2>
+        <motion.p
+          variants={fadeUpItem}
+          className="text-muted-foreground mt-1.5 text-center text-sm"
+        >
+          {t('auth.continueAccount')}
+        </motion.p>
 
-            <form
-              noValidate
-              onSubmit={handleSubmit((v) => mutation.mutate(v))}
-              className="mt-8 space-y-5"
-            >
-              {/* Email */}
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
-                  {t('auth.email')}
-                </label>
-                <div className="relative">
-                  <Mail className="text-muted-foreground pointer-events-none absolute start-3.5 top-1/2 size-[18px] -translate-y-1/2" />
-                  <input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    placeholder="you@company.com"
-                    aria-invalid={!!errors.email}
-                    className={fieldClass}
-                    {...register('email')}
-                  />
-                </div>
-                {errors.email && <p className="text-destructive text-xs">{errors.email.message}</p>}
-              </div>
-
-              {/* Password */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="text-sm font-medium">
-                    {t('auth.password')}
-                  </label>
-                  <Link
-                    to="/forgot-password"
-                    className="text-primary text-xs font-medium hover:underline"
-                  >
-                    {t('auth.forgotPassword')}
-                  </Link>
-                </div>
-                <div className="relative">
-                  <Lock className="text-muted-foreground pointer-events-none absolute start-3.5 top-1/2 size-[18px] -translate-y-1/2" />
-                  <input
-                    id="password"
-                    type={showPw ? 'text' : 'password'}
-                    autoComplete="current-password"
-                    placeholder="••••••••"
-                    aria-invalid={!!errors.password}
-                    className={`${fieldClass} pe-11`}
-                    {...register('password')}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPw((v) => !v)}
-                    aria-label={showPw ? 'Hide password' : 'Show password'}
-                    tabIndex={-1}
-                    className="text-muted-foreground hover:text-foreground absolute inset-y-0 end-0 flex w-11 items-center justify-center transition-colors"
-                  >
-                    {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                  </button>
-                </div>
-                {errors.password && (
-                  <p className="text-destructive text-xs">{errors.password.message}</p>
-                )}
-              </div>
-
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={mutation.isPending}
-                className="group relative flex h-12 w-full items-center justify-center gap-2 rounded-xl font-semibold text-white shadow-lg shadow-[#5A3BFF]/25 transition hover:brightness-[1.08] disabled:cursor-not-allowed disabled:opacity-60"
-                style={{ backgroundImage: BRAND_GRADIENT }}
-              >
-                {mutation.isPending && <Spinner />}
-                {t('common.signIn')}
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
-              </button>
-            </form>
-
-            <p className="text-muted-foreground mt-8 text-center text-sm">
-              {t('auth.noAccount')}{' '}
-              <Link
-                to="/register"
-                state={location.state}
-                className="text-primary font-semibold hover:underline"
-              >
-                {t('auth.createOne')}
-              </Link>
-            </p>
+        <motion.form
+          variants={fadeUpItem}
+          noValidate
+          onSubmit={handleSubmit((v) => mutation.mutate(v))}
+          className="mt-8 space-y-5"
+        >
+          {/* Email */}
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium">
+              {t('auth.email')}
+            </label>
+            <div className="relative">
+              <Mail className="text-muted-foreground pointer-events-none absolute start-3.5 top-1/2 size-[18px] -translate-y-1/2" />
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@company.com"
+                aria-invalid={!!errors.email}
+                className={fieldClass}
+                {...register('email')}
+              />
+            </div>
+            {errors.email && <p className="text-destructive text-xs">{errors.email.message}</p>}
           </div>
-        </section>
-      </div>
-    </div>
+
+          {/* Password */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label htmlFor="password" className="text-sm font-medium">
+                {t('auth.password')}
+              </label>
+              <Link
+                to="/forgot-password"
+                className="text-primary text-xs font-medium hover:underline"
+              >
+                {t('auth.forgotPassword')}
+              </Link>
+            </div>
+            <div className="relative">
+              <Lock className="text-muted-foreground pointer-events-none absolute start-3.5 top-1/2 size-[18px] -translate-y-1/2" />
+              <input
+                id="password"
+                type={showPw ? 'text' : 'password'}
+                autoComplete="current-password"
+                placeholder="••••••••"
+                aria-invalid={!!errors.password}
+                className={`${fieldClass} pe-11`}
+                {...register('password')}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw((v) => !v)}
+                aria-label={showPw ? 'Hide password' : 'Show password'}
+                tabIndex={-1}
+                className="text-muted-foreground hover:text-foreground absolute inset-y-0 end-0 flex w-11 items-center justify-center transition-colors"
+              >
+                {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-destructive text-xs">{errors.password.message}</p>
+            )}
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={mutation.isPending}
+            className="group relative flex h-12 w-full items-center justify-center gap-2 rounded-xl font-semibold text-white shadow-lg shadow-[#5A3BFF]/25 transition hover:brightness-[1.08] disabled:cursor-not-allowed disabled:opacity-60"
+            style={{ backgroundImage: BRAND_GRADIENT }}
+          >
+            {mutation.isPending && <Spinner />}
+            {t('common.signIn')}
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
+          </button>
+        </motion.form>
+
+        <motion.p
+          variants={fadeUpItem}
+          className="text-muted-foreground mt-8 text-center text-sm"
+        >
+          {t('auth.noAccount')}{' '}
+          <Link
+            to="/register"
+            state={location.state}
+            className="text-primary font-semibold hover:underline"
+          >
+            {t('auth.createOne')}
+          </Link>
+        </motion.p>
+      </motion.div>
+    </AuthPageShell>
   );
 }
 

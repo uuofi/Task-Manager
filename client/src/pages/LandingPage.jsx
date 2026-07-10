@@ -1,45 +1,38 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, CalendarClock, CheckCircle2, LayoutDashboard, Zap } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import logoMark from '@/assets/logo.png';
+import { DashboardPreview } from '@/components/marketing/DashboardPreview';
+import { TaskJourney } from '@/components/marketing/journey/TaskJourney';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 
-const features = [
-  {
-    icon: LayoutDashboard,
-    title: 'Unified dashboard',
-    description: "Today's tasks, overdue work, project progress and activity in one calm view.",
-  },
-  {
-    icon: Zap,
-    title: 'Realtime everything',
-    description: 'Live comments, presence, typing indicators and instant notifications.',
-  },
-  {
-    icon: CalendarClock,
-    title: 'Time tracking',
-    description: 'Built-in timers turn focused work into accurate actual-hour reporting.',
-  },
-  {
-    icon: CheckCircle2,
-    title: 'Smart workflows',
-    description: 'Backlog → Done with dependencies, recurring tasks and suggestions.',
-  },
-];
+const EASE = [0.16, 1, 0.3, 1];
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  show: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.5 } }),
+  hidden: { opacity: 0, y: 18 },
+  show: (i = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.08, duration: 0.55, ease: EASE },
+  }),
 };
 
 export function LandingPage() {
+  const { t } = useTranslation();
+
   return (
-    <div className="bg-background text-foreground min-h-screen">
+    <div className="bg-background text-foreground relative min-h-screen overflow-hidden">
+      {/* Ambient gradient orbs — matches the auth pages' brand treatment */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-40 -top-40 size-[34rem] rounded-full bg-[#5A3BFF]/20 blur-[130px]" />
+        <div className="absolute -right-32 top-1/4 size-[28rem] rounded-full bg-[#2D7CFF]/15 blur-[130px]" />
+      </div>
+
       {/* Nav */}
-      <header className="border-b">
+      <header className="border-border/60 relative z-10 border-b">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2 font-semibold">
             <img
@@ -54,84 +47,104 @@ export function LandingPage() {
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Button asChild variant="ghost">
-              <Link to="/login">Sign in</Link>
+              <Link to="/login">{t('common.signIn')}</Link>
             </Button>
-            <Button asChild>
-              <Link to="/register">Get started</Link>
+            <Button asChild variant="cta">
+              <Link to="/register">{t('landing.getStartedFree')}</Link>
             </Button>
           </div>
         </div>
       </header>
 
       {/* Hero */}
-      <main className="mx-auto max-w-6xl px-6">
-        <section className="py-20 text-center sm:py-28">
-          <motion.div initial="hidden" animate="show" variants={fadeUp}>
-            <span className="bg-accent text-accent-foreground inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium">
-              <span className="bg-success size-1.5 rounded-full" /> Built for high-performing teams
-            </span>
-          </motion.div>
-          <motion.h1
-            initial="hidden"
-            animate="show"
-            custom={1}
-            variants={fadeUp}
-            className="mx-auto mt-6 max-w-3xl text-4xl font-bold tracking-tight text-balance sm:text-6xl"
-          >
-            The task platform your team will actually enjoy using
-          </motion.h1>
-          <motion.p
-            initial="hidden"
-            animate="show"
-            custom={2}
-            variants={fadeUp}
-            className="text-muted-foreground mx-auto mt-6 max-w-2xl text-lg text-pretty"
-          >
-            Plan projects, track time, collaborate in realtime and never miss a deadline — all in a
-            beautifully minimal workspace.
-          </motion.p>
-          <motion.div
-            initial="hidden"
-            animate="show"
-            custom={3}
-            variants={fadeUp}
-            className="mt-10 flex items-center justify-center gap-3"
-          >
-            <Button asChild size="lg" variant="cta">
-              <Link to="/register">
-                Start free <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to="/login">Live demo</Link>
-            </Button>
-          </motion.div>
-        </section>
-
-        {/* Features */}
-        <section className="grid gap-4 pb-24 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map((feature, i) => (
-            <motion.div
-              key={feature.title}
+      <main className="relative z-10">
+        <section className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-16 sm:py-20 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:py-28">
+          <div>
+            <motion.span
               initial="hidden"
-              whileInView="show"
-              viewport={{ once: true }}
-              custom={i}
+              animate="show"
               variants={fadeUp}
+              className="border-border bg-card/60 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm backdrop-blur-sm"
             >
-              <Card className="h-full">
-                <CardContent className="flex flex-col gap-3">
-                  <feature.icon className="text-primary size-6" />
-                  <h3 className="font-semibold">{feature.title}</h3>
-                  <p className="text-muted-foreground text-sm">{feature.description}</p>
-                </CardContent>
-              </Card>
+              <span className="bg-primary size-1.5 rounded-full" />
+              {t('landing.badgeOrganize')} <span className="text-muted-foreground">•</span>{' '}
+              {t('landing.badgeTrack')} <span className="text-muted-foreground">•</span>{' '}
+              {t('landing.badgeAchieve')}
+            </motion.span>
+
+            <motion.h1
+              initial="hidden"
+              animate="show"
+              custom={1}
+              variants={fadeUp}
+              className="mt-6 text-4xl font-extrabold leading-[1.1] tracking-tight text-balance sm:text-5xl lg:text-6xl"
+            >
+              {t('landing.heroTitleLead')}{' '}
+              <span
+                className="bg-clip-text text-transparent"
+                style={{
+                  backgroundImage: 'linear-gradient(105deg, #5A3BFF 0%, #2D7CFF 48%, #00C2A8 100%)',
+                }}
+              >
+                {t('landing.heroTitleAccent')}
+              </span>
+            </motion.h1>
+
+            <motion.p
+              initial="hidden"
+              animate="show"
+              custom={2}
+              variants={fadeUp}
+              className="text-muted-foreground mt-6 max-w-xl text-lg leading-relaxed text-pretty"
+            >
+              {t('landing.heroSubtitle')}
+            </motion.p>
+
+            <motion.div
+              initial="hidden"
+              animate="show"
+              custom={3}
+              variants={fadeUp}
+              className="mt-8 flex flex-wrap items-center gap-3"
+            >
+              <Button asChild size="lg" variant="cta">
+                <Link to="/register">
+                  {t('landing.getStartedFree')} <ArrowRight className="size-4 rtl:rotate-180" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <a href="#features">{t('landing.exploreFeatures')}</a>
+              </Button>
             </motion.div>
-          ))}
+
+            <motion.div
+              initial="hidden"
+              animate="show"
+              custom={4}
+              variants={fadeUp}
+              className="text-muted-foreground mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm"
+            >
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="text-success size-4" /> {t('landing.trustEasy')}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="text-success size-4" /> {t('landing.trustCollab')}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="text-success size-4" /> {t('landing.trustRealtime')}
+              </span>
+            </motion.div>
+          </div>
+
+          <DashboardPreview />
         </section>
       </main>
 
-      <footer className="text-muted-foreground border-t py-8 text-center text-sm">
+      {/* How work moves — replaces a conventional features grid with a
+          storytelling journey through real departments. */}
+      <TaskJourney />
+
+      <footer className="border-border/60 text-muted-foreground relative z-10 border-t py-8 text-center text-sm">
         © {new Date().getFullYear()} TaskControl. Crafted for teams that ship.
       </footer>
     </div>
