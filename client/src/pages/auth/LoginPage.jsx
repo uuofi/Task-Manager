@@ -73,9 +73,13 @@ export function LoginPage() {
     'border-border bg-foreground/[0.03] focus:border-primary focus:ring-primary/25 h-12 w-full rounded-xl border ps-11 pe-4 text-sm outline-none transition placeholder:text-muted-foreground focus:ring-2 dark:bg-white/5';
 
   return (
-    <div className="bg-background text-foreground relative min-h-dvh overflow-hidden">
-      {/* Ambient gradient orbs */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div className="bg-background text-foreground relative min-h-dvh overflow-x-hidden">
+      {/* Ambient background — fixed so it always covers the viewport (no seam
+          or black strip when the page scrolls or on short screens). */}
+      <div
+        aria-hidden
+        className="bg-background pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+      >
         <div className="absolute -left-40 -top-40 size-[34rem] rounded-full bg-[#5A3BFF]/25 blur-[130px]" />
         <div className="absolute -bottom-48 left-1/4 size-[34rem] rounded-full bg-[#00C2A8]/20 blur-[130px]" />
         <div className="absolute -right-32 top-1/3 size-[26rem] rounded-full bg-[#2D7CFF]/10 blur-[130px]" />
