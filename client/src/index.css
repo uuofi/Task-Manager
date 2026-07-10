@@ -6,118 +6,121 @@
 
 /* ==========================================================================
    Design tokens — light theme (default)
-   A refined, minimal SaaS palette inspired by Linear / Notion.
+   Brand palette:
+     #5A3BFF violet · #2D7CFF blue · #00C2A8 teal · #22D37D green
+     #0D1321 ink · #F2F4F7 mist
    ========================================================================== */
 :root {
   --radius: 0.65rem;
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
+  --background: #ffffff;
+  --foreground: #0d1321;
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
+  --card: #ffffff;
+  --card-foreground: #0d1321;
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
+  --popover: #ffffff;
+  --popover-foreground: #0d1321;
 
-  /* Brand: teal action color (#0D9488) */
-  --primary: oklch(0.617 0.105 184.7);
-  --primary-foreground: oklch(0.985 0 0);
+  /* Brand: violet (#5A3BFF) */
+  --primary: #5a3bff;
+  --primary-foreground: #ffffff;
 
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --secondary: #f2f4f7;
+  --secondary-foreground: #0d1321;
 
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
+  --muted: #f2f4f7;
+  --muted-foreground: #616b80;
 
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
+  --accent: #f2f4f7;
+  --accent-foreground: #0d1321;
 
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
 
-  /* High-emphasis CTA accent: action orange (#EA580C) — one per screen */
-  --cta: oklch(0.646 0.21 38);
-  --cta-foreground: oklch(0.985 0 0);
+  /* High-emphasis CTA accent: brand blue (#2D7CFF) — one per screen */
+  --cta: #2d7cff;
+  --cta-foreground: #ffffff;
 
-  --success: oklch(0.62 0.17 145);
-  --warning: oklch(0.75 0.16 75);
+  --success: #22d37d;
+  --warning: #f5a623;
 
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.617 0.105 184.7);
+  --border: #e6e8ee;
+  --input: #e6e8ee;
+  --ring: #5a3bff;
 
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.617 0.105 184.7);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.617 0.105 184.7);
+  --sidebar: #f2f4f7;
+  --sidebar-foreground: #0d1321;
+  --sidebar-primary: #5a3bff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e7eaf1;
+  --sidebar-accent-foreground: #0d1321;
+  --sidebar-border: #e6e8ee;
+  --sidebar-ring: #5a3bff;
 
   /* Task priority + status accent hues (shared with charts) */
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --chart-1: #5a3bff;
+  --chart-2: #2d7cff;
+  --chart-3: #00c2a8;
+  --chart-4: #22d37d;
+  --chart-5: #f5a623;
 }
 
 /* ==========================================================================
    Design tokens — dark theme
    ========================================================================== */
 .dark {
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
+  /* Ink navy (#0D1321) base with layered navy surfaces */
+  --background: #0d1321;
+  --foreground: #f2f4f7;
 
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
+  --card: #161d2b;
+  --card-foreground: #f2f4f7;
 
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
+  --popover: #161d2b;
+  --popover-foreground: #f2f4f7;
 
-  /* Brand teal — brighter tonal variant for dark surfaces */
-  --primary: oklch(0.7 0.12 184);
-  --primary-foreground: oklch(0.18 0.02 184);
+  /* Brand violet — brighter tonal variant for dark surfaces */
+  --primary: #7c63ff;
+  --primary-foreground: #ffffff;
 
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
+  --secondary: #1c2436;
+  --secondary-foreground: #f2f4f7;
 
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
+  --muted: #1c2436;
+  --muted-foreground: #9aa4b8;
 
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
+  --accent: #1c2436;
+  --accent-foreground: #f2f4f7;
 
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
+  --destructive: #ff5a5f;
+  --destructive-foreground: #ffffff;
 
-  /* Action orange — brighter tonal variant for dark surfaces */
-  --cta: oklch(0.7 0.19 42);
-  --cta-foreground: oklch(0.985 0 0);
+  /* Brand blue — brighter tonal variant for dark surfaces */
+  --cta: #4d90ff;
+  --cta-foreground: #ffffff;
 
-  --success: oklch(0.7 0.16 145);
-  --warning: oklch(0.8 0.16 75);
+  --success: #2bdd87;
+  --warning: #ffb340;
 
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.7 0.12 184);
+  --ring: #7c63ff;
 
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.7 0.12 184);
-  --sidebar-primary-foreground: oklch(0.18 0.02 184);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar: #10182a;
+  --sidebar-foreground: #f2f4f7;
+  --sidebar-primary: #7c63ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1c2436;
+  --sidebar-accent-foreground: #f2f4f7;
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.7 0.12 184);
+  --sidebar-ring: #7c63ff;
 
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
+  --chart-1: #7c63ff;
+  --chart-2: #4d90ff;
+  --chart-3: #00c2a8;
+  --chart-4: #22d37d;
+  --chart-5: #ffb340;
 }
 
 /* ==========================================================================

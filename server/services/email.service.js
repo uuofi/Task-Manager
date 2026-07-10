@@ -61,14 +61,14 @@ ${resetUrl}
 If you didn't request this, you can safely ignore this email.`;
 
   const html = `
-    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;max-width:480px;margin:auto;color:#134E4A">
-      <h2 style="color:#0D9488">Reset your password</h2>
+    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;max-width:480px;margin:auto;color:#0D1321">
+      <h2 style="color:#5A3BFF">Reset your password</h2>
       <p>Hi ${user.name},</p>
       <p>We received a request to reset your password. This link is valid for
          <strong>${env.jwt.resetTokenExpiresMin} minutes</strong>.</p>
       <p style="margin:28px 0">
         <a href="${resetUrl}"
-           style="background:#EA580C;color:#fff;padding:12px 24px;border-radius:8px;
+           style="background:#2D7CFF;color:#fff;padding:12px 24px;border-radius:8px;
                   text-decoration:none;font-weight:600;display:inline-block">
           Reset password
         </a>
@@ -100,7 +100,7 @@ If you weren't expecting this, you can safely ignore this email.`;
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:auto;color:#1e293b;background:#ffffff;padding:36px 40px;border-radius:12px;border:1px solid #e2e8f0">
 
-      <h2 style="color:#0D9488;margin:0 0 6px 0;font-size:22px">You have been invited</h2>
+      <h2 style="color:#5A3BFF;margin:0 0 6px 0;font-size:22px">You have been invited</h2>
       <p style="margin:0 0 24px 0;color:#475569;font-size:15px;line-height:1.6">
         <strong style="color:#0f172a">${inviterName}</strong> has invited you to collaborate
         in the <strong style="color:#0f172a">${workspaceName}</strong> workspace on
@@ -153,8 +153,8 @@ ${appUrl}
 This invitation expires in 7 days. If you weren't expecting this, you can safely ignore this email.`;
 
   const html = `
-    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;max-width:480px;margin:auto;color:#134E4A">
-      <h2 style="color:#0D9488">Workspace invitation</h2>
+    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;max-width:480px;margin:auto;color:#0D1321">
+      <h2 style="color:#5A3BFF">Workspace invitation</h2>
       <p>
         <strong>${inviterName}</strong> invited you to join the
         <strong>${workspaceName}</strong> workspace on <strong>TaskControl</strong>
@@ -163,7 +163,7 @@ This invitation expires in 7 days. If you weren't expecting this, you can safely
       <p>Open TaskControl and head to your <strong>Notifications</strong> to accept or decline.</p>
       <p style="margin:28px 0">
         <a href="${appUrl}"
-           style="background:#EA580C;color:#fff;padding:12px 24px;border-radius:8px;
+           style="background:#2D7CFF;color:#fff;padding:12px 24px;border-radius:8px;
                   text-decoration:none;font-weight:600;display:inline-block">
           Open notifications
         </a>
@@ -195,8 +195,8 @@ ${acceptUrl}
 This invitation expires in 7 days. If you weren't expecting this, you can ignore this email.`;
 
   const html = `
-    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;max-width:480px;margin:auto;color:#134E4A">
-      <h2 style="color:#0D9488">Project invitation</h2>
+    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;max-width:480px;margin:auto;color:#0D1321">
+      <h2 style="color:#5A3BFF">Project invitation</h2>
       <p>
         <strong>${inviterName}</strong> invited you to join the
         <strong>${projectName}</strong> project in <strong>${workspaceName}</strong>
@@ -204,7 +204,7 @@ This invitation expires in 7 days. If you weren't expecting this, you can ignore
       </p>
       <p style="margin:28px 0">
         <a href="${acceptUrl}"
-           style="background:#EA580C;color:#fff;padding:12px 24px;border-radius:8px;
+           style="background:#2D7CFF;color:#fff;padding:12px 24px;border-radius:8px;
                   text-decoration:none;font-weight:600;display:inline-block">
           Join project
         </a>
@@ -245,8 +245,8 @@ export const sendTaskCreatedEmail = async ({ recipients, task, projectName, crea
   const subject = `[${task.key}] New task in ${projectName}: ${task.title}`;
 
   const html = `
-    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;max-width:560px;margin:auto;color:#134E4A">
-      <h2 style="color:#0D9488;margin-bottom:4px">New task created</h2>
+    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;max-width:560px;margin:auto;color:#0D1321">
+      <h2 style="color:#5A3BFF;margin-bottom:4px">New task created</h2>
       <p style="color:#64748b;margin-top:0">
         <strong>${createdByName}</strong> created a new task in <strong>${projectName}</strong>
       </p>
@@ -288,7 +288,7 @@ export const sendTaskCreatedEmail = async ({ recipients, task, projectName, crea
 
       <p style="margin:24px 0">
         <a href="${taskUrl}"
-           style="background:#EA580C;color:#fff;padding:12px 24px;border-radius:8px;
+           style="background:#2D7CFF;color:#fff;padding:12px 24px;border-radius:8px;
                   text-decoration:none;font-weight:600;display:inline-block">
           View task
         </a>

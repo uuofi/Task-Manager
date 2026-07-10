@@ -61,7 +61,7 @@ function buildNodes(projects, boardsByProject) {
       type: 'project',
       id: proj.id,
       label: proj.key,
-      color: proj.color || '#0d9488',
+      color: proj.color || '#5a3bff',
       anchor: hub,
     });
 

@@ -39,7 +39,7 @@ const projectSchema = new Schema(
       maxlength: 6,
     },
     description: { type: String, maxlength: 1000, default: '' },
-    color: { type: String, default: '#0D9488' },
+    color: { type: String, default: '#5A3BFF' },
     icon: { type: String, default: 'folder' },
 
     status: {
