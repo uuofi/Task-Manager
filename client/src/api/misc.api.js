@@ -63,6 +63,25 @@ export const workspacesApi = {
     const { data } = await axiosClient.delete(`/workspaces/current/members/${userId}`);
     return data.data;
   },
+  async leave() {
+    const { data } = await axiosClient.post('/workspaces/current/leave');
+    return data.data;
+  },
+};
+
+export const contractLinksApi = {
+  async list() {
+    const { data } = await axiosClient.get('/contract-links');
+    return data.data;
+  },
+  async toggle(projectA, projectB) {
+    const { data } = await axiosClient.post('/contract-links', { projectA, projectB });
+    return data.data;
+  },
+  async remove(id) {
+    const { data } = await axiosClient.delete(`/contract-links/${id}`);
+    return data.data;
+  },
 };
 
 export const invitationsApi = {
@@ -128,6 +147,10 @@ export const searchApi = {
 export const dashboardApi = {
   async get() {
     const { data } = await axiosClient.get('/dashboard');
+    return data.data;
+  },
+  async team() {
+    const { data } = await axiosClient.get('/dashboard/team');
     return data.data;
   },
 };

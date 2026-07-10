@@ -174,6 +174,9 @@ export const SOCKET_EVENTS = Object.freeze({
   // typing indicator
   TYPING_START: 'typing:start',
   TYPING_STOP: 'typing:stop',
+  // contract system links
+  CONTRACT_LINK_CREATED: 'contract_link:created',
+  CONTRACT_LINK_DELETED: 'contract_link:deleted',
 });
 
 export const COOKIE_NAMES = Object.freeze({

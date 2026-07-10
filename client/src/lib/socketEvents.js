@@ -14,6 +14,8 @@ export const SOCKET_EVENTS = Object.freeze({
   COMMENT_DELETED: 'comment:deleted',
   TYPING_START: 'typing:start',
   TYPING_STOP: 'typing:stop',
+  CONTRACT_LINK_CREATED: 'contract_link:created',
+  CONTRACT_LINK_DELETED: 'contract_link:deleted',
   ACTIVITY_NEW: 'activity:new',
   WORKSPACE_MEMBER_JOINED: 'workspace:member_joined',
   WORKSPACE_JOINED: 'workspace:joined',

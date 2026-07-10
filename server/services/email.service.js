@@ -131,6 +131,51 @@ If you weren't expecting this, you can safely ignore this email.`;
   return sendEmail({ to, subject, html, text });
 };
 
+/**
+ * Notifies an existing registered user by email that they've been invited to a
+ * workspace. The accept/decline happens in-app (from their notifications), so
+ * this email just points them there rather than carrying a token.
+ */
+export const sendWorkspaceInviteNotificationEmail = async ({
+  to,
+  inviterName,
+  workspaceName,
+  role,
+}) => {
+  const subject = `${inviterName} invited you to join ${workspaceName} on TaskControl`;
+  const appUrl = `${env.clientUrl}/app/notifications`;
+
+  const text = `${inviterName} invited you to join the "${workspaceName}" workspace on TaskControl as ${role}.
+
+Open TaskControl and go to your Notifications to accept or decline:
+${appUrl}
+
+This invitation expires in 7 days. If you weren't expecting this, you can safely ignore this email.`;
+
+  const html = `
+    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;max-width:480px;margin:auto;color:#134E4A">
+      <h2 style="color:#0D9488">Workspace invitation</h2>
+      <p>
+        <strong>${inviterName}</strong> invited you to join the
+        <strong>${workspaceName}</strong> workspace on <strong>TaskControl</strong>
+        as <strong>${role}</strong>.
+      </p>
+      <p>Open TaskControl and head to your <strong>Notifications</strong> to accept or decline.</p>
+      <p style="margin:28px 0">
+        <a href="${appUrl}"
+           style="background:#EA580C;color:#fff;padding:12px 24px;border-radius:8px;
+                  text-decoration:none;font-weight:600;display:inline-block">
+          Open notifications
+        </a>
+      </p>
+      <p style="color:#64748b;font-size:13px">
+        This invitation expires in 7 days. If you weren't expecting this, you can safely ignore this email.
+      </p>
+    </div>`;
+
+  return sendEmail({ to, subject, html, text });
+};
+
 /** Sends a project membership invitation email to an existing workspace member. */
 export const sendProjectInvitationEmail = async ({
   to,
@@ -270,6 +315,7 @@ export default {
   sendEmail,
   sendPasswordResetEmail,
   sendInvitationEmail,
+  sendWorkspaceInviteNotificationEmail,
   sendProjectInvitationEmail,
   sendTaskCreatedEmail,
 };

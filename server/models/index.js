@@ -13,3 +13,4 @@ export { ActivityLog } from './ActivityLog.js';
 export { Invitation } from './Invitation.js';
 export { TaskSuggestion } from './TaskSuggestion.js';
 export { TimeEntry } from './TimeEntry.js';
+export { ContractLink } from './ContractLink.js';

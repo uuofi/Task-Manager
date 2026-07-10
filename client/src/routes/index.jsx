@@ -23,6 +23,7 @@ const TaskPage = lazy(() => import('@/pages/app/TaskPage'));
 const CalendarPage = lazy(() => import('@/pages/app/CalendarPage'));
 const SuggestionsPage = lazy(() => import('@/pages/app/SuggestionsPage'));
 const TeamPage = lazy(() => import('@/pages/app/TeamPage'));
+const TeamInsightsPage = lazy(() => import('@/pages/app/TeamInsightsPage'));
 const NotificationsPage = lazy(() => import('@/pages/app/NotificationsPage'));
 const ProfilePage = lazy(() => import('@/pages/app/ProfilePage'));
 const SettingsPage = lazy(() => import('@/pages/app/SettingsPage'));
@@ -70,6 +71,7 @@ export const router = createBrowserRouter([
           { path: 'calendar', element: <CalendarPage /> },
           { path: 'suggestions', element: <SuggestionsPage /> },
           { path: 'team', element: <TeamPage /> },
+          { path: 'insights', element: <TeamInsightsPage /> },
           { path: 'notifications', element: <NotificationsPage /> },
           { path: 'profile', element: <ProfilePage /> },
           { path: 'settings', element: <SettingsPage /> },

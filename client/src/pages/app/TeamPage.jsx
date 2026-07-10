@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bell, UserMinus, UserPlus, X } from 'lucide-react';
+import { Bell, LogOut, UserMinus, UserPlus, X } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { getErrorMessage } from '@/api/axiosClient';
@@ -29,6 +30,7 @@ import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
 
 const ADMIN_ROLES = new Set(['owner', 'admin']);
+const ASSIGNABLE_ROLES = ['member', 'manager', 'admin'];
 
 function PendingInviteRow({ inv, canManage }) {
   const qc = useQueryClient();
@@ -165,6 +167,7 @@ function InviteDialog() {
 export function TeamPage() {
   const me = useAuthStore((s) => s.user);
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const { isUserOnline } = useSocket();
   const { data: members, isLoading } = useQuery({
     queryKey: ['workspace', 'members'],
@@ -178,6 +181,7 @@ export function TeamPage() {
   // Derive the current user's workspace role
   const myRole = members?.find((m) => m.user?.id === me?.id)?.role;
   const canManage = ADMIN_ROLES.has(myRole);
+  const isOwnerSelf = myRole === 'owner';
 
   const removeMember = useMutation({
     mutationFn: (userId) => workspacesApi.removeMember(userId),
@@ -188,12 +192,50 @@ export function TeamPage() {
     onError: (e) => toast.error(getErrorMessage(e)),
   });
 
+  const changeRole = useMutation({
+    mutationFn: ({ userId, role }) => workspacesApi.updateMemberRole(userId, role),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['workspace', 'members'] });
+      toast.success('Member role updated');
+    },
+    onError: (e) => toast.error(getErrorMessage(e)),
+  });
+
+  const leave = useMutation({
+    mutationFn: () => workspacesApi.leave(),
+    onSuccess: () => {
+      toast.success('You left the workspace');
+      navigate('/app');
+      window.location.reload();
+    },
+    onError: (e) => toast.error(getErrorMessage(e)),
+  });
+
+  const headerActions = (
+    <div className="flex items-center gap-2">
+      {!isOwnerSelf && (
+        <Button
+          variant="outline"
+          onClick={() => {
+            if (window.confirm('Leave this workspace? You will lose access to its projects and tasks.')) {
+              leave.mutate();
+            }
+          }}
+          disabled={leave.isPending}
+        >
+          {leave.isPending ? <Spinner /> : <LogOut className="size-4" />} Leave workspace
+        </Button>
+      )}
+      {canManage && <InviteDialog />}
+    </div>
+  );
+
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
       <PageHeader
         title="Team"
         description="Manage who has access to this workspace."
-        actions={canManage ? <InviteDialog /> : null}
+        actions={headerActions}
       />
 
       {/* Pending invitations — only shown to admins */}
@@ -245,12 +287,28 @@ export function TeamPage() {
                     </p>
                     <p className="text-muted-foreground">{m.stats.completionRate}% completion</p>
                   </div>
-                  <Badge
-                    variant={isOwner ? 'default' : 'secondary'}
-                    className="capitalize"
-                  >
-                    {m.role}
-                  </Badge>
+                  {canRemove ? (
+                    <Select
+                      value={m.role}
+                      onValueChange={(role) => changeRole.mutate({ userId: m.user.id, role })}
+                      disabled={changeRole.isPending}
+                    >
+                      <SelectTrigger size="sm" className="w-28 capitalize">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ASSIGNABLE_ROLES.map((r) => (
+                          <SelectItem key={r} value={r} className="capitalize">
+                            {r}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Badge variant={isOwner ? 'default' : 'secondary'} className="capitalize">
+                      {m.role}
+                    </Badge>
+                  )}
                   {canRemove && (
                     <Button
                       variant="ghost"
