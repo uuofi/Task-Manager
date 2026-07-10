@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   CalendarDays,
   LayoutDashboard,
   Lightbulb,
@@ -25,6 +26,7 @@ const nav = [
   { to: '/app/calendar', key: 'calendar', icon: CalendarDays },
   { to: '/app/suggestions', key: 'suggestions', icon: Lightbulb },
   { to: '/app/team', key: 'team', icon: Users },
+  { to: '/app/insights', key: 'insights', icon: BarChart3 },
   { to: '/app/settings', key: 'settings', icon: Settings },
 ];
 

@@ -89,7 +89,7 @@ const run = async () => {
   // --- Projects ---
   logger.info('Creating projects…');
   const projectsSpec = [
-    { name: 'Web Platform', key: 'WEB', color: '#0D9488', icon: 'globe' },
+    { name: 'Web Platform', key: 'WEB', color: '#5A3BFF', icon: 'globe' },
     { name: 'Mobile App', key: 'MOB', color: '#8B5CF6', icon: 'smartphone' },
     { name: 'Design System', key: 'DS', color: '#EC4899', icon: 'palette' },
   ];

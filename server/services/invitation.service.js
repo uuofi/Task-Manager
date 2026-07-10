@@ -1,3 +1,4 @@
+import { logger } from '../config/logger.js';
 import {
   ENTITY_TYPE,
   INVITATION_STATUS,
@@ -12,6 +13,7 @@ import { realtime } from '../sockets/emitter.js';
 import { ApiError } from '../utils/ApiError.js';
 import { generateSecureToken } from '../utils/crypto.js';
 
+import { sendWorkspaceInviteNotificationEmail } from './email.service.js';
 import { notificationService } from './notification.service.js';
 
 const INVITE_TTL_DAYS = 7;
@@ -49,7 +51,7 @@ const invite = async ({ workspace, inviter, role, email, inviteRole }) => {
     expiresAt: new Date(Date.now() + INVITE_TTL_DAYS * 24 * 60 * 60 * 1000),
   });
 
-  // Send in-app notification only — no email
+  // In-app notification (primary channel — accept/decline happens in-app).
   await notificationService.notify({
     recipient: invitee._id,
     workspace: workspace.id,
@@ -61,6 +63,14 @@ const invite = async ({ workspace, inviter, role, email, inviteRole }) => {
     entityType: ENTITY_TYPE.INVITATION,
     entityId: invitation._id,
   });
+
+  // Email notification (best-effort — never block the invite on SMTP).
+  sendWorkspaceInviteNotificationEmail({
+    to: normalized,
+    inviterName: inviter.name,
+    workspaceName: workspace.name,
+    role: finalRole,
+  }).catch((err) => logger.warn(`[invite] email notification failed: ${err.message}`));
 
   return invitation;
 };

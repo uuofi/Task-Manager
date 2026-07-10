@@ -30,7 +30,7 @@ const schema = z.object({
   color: z.string(),
 });
 
-const COLORS = ['#0D9488', '#3B82F6', '#8B5CF6', '#EC4899', '#F59E0B', '#EF4444', '#10B981'];
+const COLORS = ['#5A3BFF', '#2D7CFF', '#00C2A8', '#22D37D', '#F5A623', '#EC4899', '#EF4444'];
 
 export function CreateProjectDialog({ trigger, onCreated }) {
   const [open, setOpen] = useState(false);

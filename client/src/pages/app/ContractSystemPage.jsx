@@ -1,10 +1,13 @@
-import { useQueries } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Link2, Network, Workflow, X } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
+import { getErrorMessage } from '@/api/axiosClient';
+import { contractLinksApi } from '@/api/misc.api';
 import { EmptyState } from '@/components/common/EmptyState';
 import { PageHeader } from '@/components/common/PageHeader';
 import { Badge } from '@/components/ui/badge';
@@ -12,9 +15,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { tasksApi } from '@/api/tasks.api';
+import { useSocket } from '@/contexts/SocketContext';
 import { useProjects } from '@/hooks/useProjects';
 import { qk } from '@/lib/queryKeys';
+import { SOCKET_EVENTS } from '@/lib/socketEvents';
 import { STATUS, statusLabel } from '@/lib/taskMeta';
+
+const CONTRACT_LINKS_KEY = ['contract-links'];
 
 /** SVG canvas dimensions — the diagram scales responsively via viewBox. */
 const W = 1100;
@@ -25,8 +32,6 @@ const HUB_R = 13; // contract (project) dot radius
 const HIT_R = 18; // invisible grab/hit area around a dot
 const MARGIN = 28; // keep dots away from the canvas edge
 
-const LS_KEY = 'taskcontrol-contract-links';
-
 /** Status → hex (SVG strokes/fills can't use Tailwind utility classes). */
 const STATUS_HEX = {
   backlog: '#a1a1aa',
@@ -36,9 +41,6 @@ const STATUS_HEX = {
   done: '#10b981',
   cancelled: '#d4d4d8',
 };
-
-/** Normalises an unordered project-pair into a stable key. */
-const pairKey = (a, b) => [a, b].sort().join('::');
 
 /**
  * Builds the unified node list (project hubs + their task dots). Project hubs sit
@@ -59,7 +61,7 @@ function buildNodes(projects, boardsByProject) {
       type: 'project',
       id: proj.id,
       label: proj.key,
-      color: proj.color || '#0d9488',
+      color: proj.color || '#5a3bff',
       anchor: hub,
     });
 
@@ -309,7 +311,7 @@ function ContractDiagram({
             className="stroke-orange-500 cursor-pointer"
             strokeWidth={3}
             strokeDasharray="8 5"
-            onClick={() => onRemoveLink(lnk.a, lnk.b)}
+            onClick={() => onRemoveLink(lnk)}
           >
             <title>Click to remove link</title>
           </line>
@@ -395,17 +397,42 @@ export function ContractSystemPage() {
 
   const nodes = useMemo(() => buildNodes(projects, boardsByProject), [projects, boardsByProject]);
 
-  // Project ↔ project links — client-side, persisted to localStorage.
-  const [projectLinks, setProjectLinks] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(LS_KEY)) ?? [];
-    } catch {
-      return [];
-    }
+  // Project ↔ project links — persisted server-side, shared across the team.
+  const qc = useQueryClient();
+  const { socket } = useSocket();
+  const { data: projectLinks = [] } = useQuery({
+    queryKey: CONTRACT_LINKS_KEY,
+    queryFn: contractLinksApi.list,
   });
+
+  // Keep every teammate's map in sync when links change elsewhere.
   useEffect(() => {
-    localStorage.setItem(LS_KEY, JSON.stringify(projectLinks));
-  }, [projectLinks]);
+    if (!socket) return undefined;
+    const refresh = () => qc.invalidateQueries({ queryKey: CONTRACT_LINKS_KEY });
+    socket.on(SOCKET_EVENTS.CONTRACT_LINK_CREATED, refresh);
+    socket.on(SOCKET_EVENTS.CONTRACT_LINK_DELETED, refresh);
+    return () => {
+      socket.off(SOCKET_EVENTS.CONTRACT_LINK_CREATED, refresh);
+      socket.off(SOCKET_EVENTS.CONTRACT_LINK_DELETED, refresh);
+    };
+  }, [socket, qc]);
+
+  const invalidateLinks = useCallback(
+    () => qc.invalidateQueries({ queryKey: CONTRACT_LINKS_KEY }),
+    [qc],
+  );
+  const onLinkError = (e) => toast.error(getErrorMessage(e));
+
+  const toggleLink = useMutation({
+    mutationFn: ({ a, b }) => contractLinksApi.toggle(a, b),
+    onSuccess: invalidateLinks,
+    onError: onLinkError,
+  });
+  const removeLinkMutation = useMutation({
+    mutationFn: (id) => contractLinksApi.remove(id),
+    onSuccess: invalidateLinks,
+    onError: onLinkError,
+  });
 
   const [linkMode, setLinkMode] = useState(false);
   const [pendingSource, setPendingSource] = useState(null);
@@ -416,9 +443,6 @@ export function ContractSystemPage() {
   };
 
   const handleProjectClick = (id) => {
-    // Note: keep the two state updates separate. Nesting setProjectLinks inside
-    // a setPendingSource updater double-fires it under StrictMode (toggling the
-    // link twice → nothing happens).
     if (!pendingSource) {
       setPendingSource(id);
       return;
@@ -427,18 +451,14 @@ export function ContractSystemPage() {
       setPendingSource(null);
       return;
     }
-    const key = pairKey(pendingSource, id);
-    setProjectLinks((links) =>
-      links.some((l) => pairKey(l.a, l.b) === key)
-        ? links.filter((l) => pairKey(l.a, l.b) !== key)
-        : [...links, { a: pendingSource, b: id }],
-    );
+    toggleLink.mutate({ a: pendingSource, b: id });
     setPendingSource(null);
   };
 
-  const removeLink = (a, b) => {
-    const key = pairKey(a, b);
-    setProjectLinks((links) => links.filter((l) => pairKey(l.a, l.b) !== key));
+  const removeLink = (lnk) => removeLinkMutation.mutate(lnk.id);
+
+  const clearAllLinks = () => {
+    projectLinks.forEach((lnk) => removeLinkMutation.mutate(lnk.id));
   };
 
   const totalTasks = nodes.filter((n) => n.type === 'task').length;
@@ -456,7 +476,7 @@ export function ContractSystemPage() {
           projects.length > 0 && (
             <div className="flex items-center gap-2">
               {projectLinks.length > 0 && (
-                <Button variant="ghost" size="sm" onClick={() => setProjectLinks([])}>
+                <Button variant="ghost" size="sm" onClick={clearAllLinks}>
                   <X className="size-4" /> {t('contracts.clearLinks')}
                 </Button>
               )}

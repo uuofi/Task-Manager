@@ -6,6 +6,7 @@ import activityRoutes from './activity.routes.js';
 import attachmentRoutes from './attachment.routes.js';
 import authRoutes from './auth.routes.js';
 import commentRoutes from './comment.routes.js';
+import contractLinkRoutes from './contractLink.routes.js';
 import dashboardRoutes from './dashboard.routes.js';
 import invitationRoutes from './invitation.routes.js';
 import notificationRoutes from './notification.routes.js';
@@ -38,5 +39,6 @@ router.use('/notifications', notificationRoutes);
 router.use('/activity', activityRoutes);
 router.use('/search', searchRoutes);
 router.use('/dashboard', dashboardRoutes);
+router.use('/contract-links', contractLinkRoutes);
 
 export default router;

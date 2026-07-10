@@ -8,5 +8,6 @@ const router = Router();
 
 router.use(authenticate, loadWorkspace);
 router.get('/', dashboardController.getDashboard);
+router.get('/team', dashboardController.getTeamAnalytics);
 
 export default router;

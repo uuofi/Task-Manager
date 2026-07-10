@@ -146,23 +146,74 @@ function Checklist({ task }) {
   );
 }
 
-function Comments({ taskId, projectId }) {
+/** Highlights @mentions in a rendered comment body. */
+function renderCommentBody(text, mentionNames) {
+  if (!mentionNames?.length) return text;
+  // Longest names first so "@Ali Hassan" wins over "@Ali".
+  const sorted = [...mentionNames].sort((a, b) => b.length - a.length);
+  const escaped = sorted.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const re = new RegExp(`@(${escaped.join('|')})`, 'g');
+  const parts = text.split(re);
+  return parts.map((part, i) =>
+    // Odd indices are the captured names (mentions).
+    i % 2 === 1 ? (
+      <span key={i} className="text-primary font-medium">
+        @{part}
+      </span>
+    ) : (
+      part
+    ),
+  );
+}
+
+function Comments({ taskId, projectId, members = [] }) {
   const qc = useQueryClient();
   const endRef = useRef(null);
   const typingTimeout = useRef(null);
   const [body, setBody] = useState('');
   const [typers, setTypers] = useState([]);
+  const [mentionQuery, setMentionQuery] = useState(null);
+  const pickedMentions = useRef(new Map()); // display name -> user id
   const { socket, emitTyping } = useSocket();
   const { data: comments } = useQuery({ queryKey: qk.comments(taskId), queryFn: () => tasksApi.listComments(taskId) });
+
+  const memberUsers = members.map((m) => m.user).filter(Boolean);
+  const mentionNames = memberUsers.map((u) => u.name);
+
+  const suggestions =
+    mentionQuery !== null
+      ? memberUsers
+          .filter((u) => u.name.toLowerCase().includes(mentionQuery.toLowerCase()))
+          .slice(0, 6)
+      : [];
+
+  // Resolve which picked mentions still appear in the text → array of user ids.
+  const resolveMentions = (text) => {
+    const ids = [];
+    pickedMentions.current.forEach((id, name) => {
+      if (text.includes(`@${name}`)) ids.push(id);
+    });
+    return [...new Set(ids)];
+  };
+
   const post = useMutation({
-    mutationFn: (text) => tasksApi.createComment(taskId, { body: text }),
+    mutationFn: (text) => tasksApi.createComment(taskId, { body: text, mentions: resolveMentions(text) }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: qk.comments(taskId) });
       setBody('');
+      setMentionQuery(null);
+      pickedMentions.current.clear();
       emitTyping(false, { projectId, taskId });
     },
     onError: (e) => toast.error(getErrorMessage(e)),
   });
+
+  const pickMention = (user) => {
+    // Replace the trailing "@query" token with the full "@Name ".
+    setBody((prev) => prev.replace(/@([^\s@]*)$/, `@${user.name} `));
+    pickedMentions.current.set(user.name, user.id);
+    setMentionQuery(null);
+  };
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -188,7 +239,11 @@ function Comments({ taskId, projectId }) {
   }, [socket, taskId]);
 
   const handleChange = (e) => {
-    setBody(e.target.value);
+    const val = e.target.value;
+    setBody(val);
+    // Open the mention picker while typing an "@token" at the caret's end.
+    const match = /@([^\s@]*)$/.exec(val);
+    setMentionQuery(match && memberUsers.length ? match[1] : null);
     emitTyping(true, { projectId, taskId });
     clearTimeout(typingTimeout.current);
     typingTimeout.current = setTimeout(() => emitTyping(false, { projectId, taskId }), 1500);
@@ -209,7 +264,7 @@ function Comments({ taskId, projectId }) {
                 <span className="font-medium">{c.author?.name}</span>{' '}
                 <span className="text-muted-foreground text-xs">{relativeTime(c.createdAt)}</span>
               </p>
-              <p className="text-sm">{c.body}</p>
+              <p className="text-sm whitespace-pre-wrap">{renderCommentBody(c.body, mentionNames)}</p>
             </div>
           </div>
         ))}
@@ -225,9 +280,28 @@ function Comments({ taskId, projectId }) {
           e.preventDefault();
           if (body.trim()) post.mutate(body.trim());
         }}
-        className="flex gap-2"
+        className="relative flex gap-2"
       >
-        <Input value={body} onChange={handleChange} placeholder="Write a comment…" />
+        {suggestions.length > 0 && (
+          <div className="bg-popover absolute bottom-full mb-1 w-56 overflow-hidden rounded-lg border shadow-md">
+            {suggestions.map((u) => (
+              <button
+                key={u.id}
+                type="button"
+                onClick={() => pickMention(u)}
+                className="hover:bg-accent flex w-full items-center gap-2 px-2.5 py-1.5 text-start text-sm"
+              >
+                <UserAvatar user={u} className="size-5" />
+                <span className="truncate">{u.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        <Input
+          value={body}
+          onChange={handleChange}
+          placeholder="Write a comment… use @ to mention"
+        />
         <Button type="submit" size="icon" disabled={!body.trim() || post.isPending}>
           {post.isPending ? <Spinner /> : <Send className="size-4" />}
         </Button>
@@ -436,7 +510,7 @@ export function TaskDetailDialog({ taskId, members = [], open, onOpenChange }) {
             <RecurrenceField task={task} onSave={saveField} />
             <TimerWidget taskId={task.id} />
             <Checklist task={task} />
-            <Comments taskId={task.id} projectId={task.project?.id || task.project} />
+            <Comments taskId={task.id} projectId={task.project?.id || task.project} members={members} />
 
             <div className="flex justify-between border-t pt-4">
               <Button variant="ghost" size="sm" className="text-destructive" onClick={() => remove.mutate()}>
