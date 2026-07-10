@@ -43,10 +43,11 @@ export const router = createBrowserRouter([
   {
     element: <PublicOnlyRoute />,
     children: [
+      // Login owns its full-page design (outside the shared AuthLayout).
+      { path: '/login', element: <LoginPage /> },
       {
         element: <AuthLayout />,
         children: [
-          { path: '/login', element: <LoginPage /> },
           { path: '/register', element: <RegisterPage /> },
           { path: '/forgot-password', element: <ForgotPasswordPage /> },
           { path: '/reset-password', element: <ResetPasswordPage /> },
