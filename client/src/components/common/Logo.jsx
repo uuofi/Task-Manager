@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 
+import logoMark from '@/assets/logo.png';
 import { cn } from '@/lib/utils';
 
 /**
@@ -9,9 +10,13 @@ import { cn } from '@/lib/utils';
 export function Logo({ className, withWordmark = true, asLink = true, to = '/' }) {
   const content = (
     <>
-      <span className="bg-primary text-primary-foreground grid size-8 place-items-center rounded-lg text-sm font-bold">
-        TC
-      </span>
+      <img
+        src={logoMark}
+        alt="TaskControl"
+        className="size-8 rounded-lg object-cover"
+        width={32}
+        height={32}
+      />
       {withWordmark && <span className="text-base font-semibold tracking-tight">TaskControl</span>}
     </>
   );

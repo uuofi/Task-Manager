@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, CalendarClock, CheckCircle2, LayoutDashboard, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import logoMark from '@/assets/logo.png';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -41,9 +42,13 @@ export function LandingPage() {
       <header className="border-b">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2 font-semibold">
-            <span className="bg-primary text-primary-foreground grid size-8 place-items-center rounded-lg">
-              TC
-            </span>
+            <img
+              src={logoMark}
+              alt="TaskControl"
+              className="size-8 rounded-lg object-cover"
+              width={32}
+              height={32}
+            />
             TaskControl
           </div>
           <div className="flex items-center gap-2">
