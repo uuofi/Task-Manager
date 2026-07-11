@@ -30,7 +30,6 @@ export function SiteFooter() {
     { label: t('footer.privacyPolicy'), to: '/privacy-policy' },
     { label: t('footer.terms'), to: '/terms' },
     { label: t('footer.intellectualProperty'), to: '/intellectual-property' },
-    { label: t('footer.contact'), to: '/contact' },
   ];
 
   return (

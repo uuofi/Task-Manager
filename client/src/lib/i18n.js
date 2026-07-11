@@ -242,7 +242,7 @@ const resources = {
             },
             {
               heading: 'Contact Us',
-              body: 'If you have questions about this Privacy Policy or how we handle your information, please reach out through our Contact page.',
+              body: 'If you have questions about this Privacy Policy or how we handle your information, please reach out through the contact form on our homepage.',
             },
           ],
         },
@@ -306,7 +306,7 @@ const resources = {
             },
             {
               heading: 'Contact Us',
-              body: 'Questions about these Terms can be sent to us through our Contact page.',
+              body: 'Questions about these Terms can be sent to us through the contact form on our homepage.',
             },
           ],
         },
@@ -341,7 +341,7 @@ const resources = {
             },
             {
               heading: 'Contact Us',
-              body: 'For any intellectual property questions, please reach out through our Contact page.',
+              body: 'For any intellectual property questions, please reach out through the contact form on our homepage.',
             },
           ],
         },
@@ -719,7 +719,7 @@ const resources = {
             },
             {
               heading: 'تواصل معنا',
-              body: 'إذا كانت لديك أسئلة حول سياسة الخصوصية هذه أو كيفية تعاملنا مع معلوماتك، يُرجى التواصل معنا عبر صفحة التواصل.',
+              body: 'إذا كانت لديك أسئلة حول سياسة الخصوصية هذه أو كيفية تعاملنا مع معلوماتك، يُرجى التواصل معنا عبر نموذج التواصل في الصفحة الرئيسية.',
             },
           ],
         },
@@ -783,7 +783,7 @@ const resources = {
             },
             {
               heading: 'تواصل معنا',
-              body: 'يمكن إرسال أي أسئلة حول هذه الشروط إلينا عبر صفحة التواصل.',
+              body: 'يمكن إرسال أي أسئلة حول هذه الشروط إلينا عبر نموذج التواصل في الصفحة الرئيسية.',
             },
           ],
         },
@@ -818,7 +818,7 @@ const resources = {
             },
             {
               heading: 'تواصل معنا',
-              body: 'لأي أسئلة تتعلق بالملكية الفكرية، يُرجى التواصل معنا عبر صفحة التواصل.',
+              body: 'لأي أسئلة تتعلق بالملكية الفكرية، يُرجى التواصل معنا عبر نموذج التواصل في الصفحة الرئيسية.',
             },
           ],
         },

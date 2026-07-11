@@ -14,7 +14,6 @@ import { ProtectedRoute, PublicOnlyRoute } from './guards';
 // Code-split the authenticated app (charts, DnD, calendar are heavy) so the
 // initial load stays lean.
 const AppLayout = lazy(() => import('@/layouts/AppLayout'));
-const ContactPage = lazy(() => import('@/pages/ContactPage'));
 const PrivacyPolicyPage = lazy(() => import('@/pages/legal/PrivacyPolicyPage'));
 const TermsPage = lazy(() => import('@/pages/legal/TermsPage'));
 const IntellectualPropertyPage = lazy(() => import('@/pages/legal/IntellectualPropertyPage'));
@@ -46,7 +45,8 @@ export const router = createBrowserRouter([
   { path: '/privacy-policy', element: <PrivacyPolicyPage /> },
   { path: '/terms', element: <TermsPage /> },
   { path: '/intellectual-property', element: <IntellectualPropertyPage /> },
-  { path: '/contact', element: <ContactPage /> },
+  // Contact lives inline on the home page (id="contact") — redirect old/bookmarked links there.
+  { path: '/contact', element: <Navigate to="/#contact" replace /> },
   {
     element: <PublicOnlyRoute />,
     children: [

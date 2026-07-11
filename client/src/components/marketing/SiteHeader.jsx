@@ -36,6 +36,12 @@ export function SiteHeader() {
     else navigate('/#contribute');
   };
 
+  const goContact = (e) => {
+    e.preventDefault();
+    if (isHome) document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+    else navigate('/#contact');
+  };
+
   return (
     // Sticky wrapper (never scrolls away) — the pill itself floats inset from
     // the edges so whatever scrolls beneath shows through the glass on all sides.
@@ -63,6 +69,9 @@ export function SiteHeader() {
           </a>
           <a href="/#contribute" onClick={goContribute} className="hover:text-foreground transition-colors">
             {t('landing.navContribute')}
+          </a>
+          <a href="/#contact" onClick={goContact} className="hover:text-foreground transition-colors">
+            {t('footer.contact')}
           </a>
         </nav>
 

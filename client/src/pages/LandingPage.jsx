@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
+import { ContactSection } from '@/components/marketing/ContactSection';
 import { ContractShowcase } from '@/components/marketing/ContractShowcase';
 import { ContributeShowcase } from '@/components/marketing/ContributeShowcase';
 import { DashboardPreview } from '@/components/marketing/DashboardPreview';
@@ -143,6 +144,9 @@ export function LandingPage() {
 
         {/* Open source — how to run it locally and contribute. */}
         <ContributeShowcase />
+
+        {/* Contact — reachable from the header, right after Contribute. */}
+        <ContactSection />
 
         <SiteFooter />
       </div>
