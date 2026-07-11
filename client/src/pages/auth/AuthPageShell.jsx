@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
-import { ChevronDown, CircleCheck, LineChart, Moon, Sun, Users } from 'lucide-react';
+import { CircleCheck, LineChart, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useTheme } from '@/contexts/ThemeContext';
+import { SiteHeader } from '@/components/marketing/SiteHeader';
 
 export const BRAND_GRADIENT = 'linear-gradient(105deg, #5A3BFF 0%, #2D7CFF 48%, #00C2A8 100%)';
 
@@ -127,50 +127,45 @@ function AuthHero() {
 }
 
 /**
- * Shared full-page chrome for auth screens (login/register): ambient gradient
- * orbs, theme toggle, and the left marketing hero. `children` renders the
- * right-hand auth card, which each page composes for its own form.
+ * Shared full-page chrome for auth screens (login/register): the persistent
+ * site header, ambient gradient orbs, and the left marketing hero. `children`
+ * renders the right-hand auth card, which each page composes for its own form.
  */
 export function AuthPageShell({ children }) {
-  const { t } = useTranslation();
-  const { resolvedTheme, toggleTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
-
   return (
-    <div className="bg-background text-foreground relative min-h-dvh overflow-hidden">
-      {/* Ambient gradient orbs */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-40 -top-40 size-[34rem] rounded-full bg-[#5A3BFF]/25 blur-[130px]" />
-        <div className="absolute -bottom-48 left-1/4 size-[34rem] rounded-full bg-[#00C2A8]/20 blur-[130px]" />
-        <div className="absolute -right-32 top-1/3 size-[26rem] rounded-full bg-[#2D7CFF]/10 blur-[130px]" />
-      </div>
+    // The header lives outside the overflow-hidden wrapper below — an
+    // `overflow: hidden` ancestor (needed to clip the decorative orbs) also
+    // clips/breaks `position: sticky`, so it can't sit between the header and
+    // the viewport or the header would scroll away instead of staying fixed.
+    <div className="bg-background text-foreground relative flex min-h-dvh flex-col">
+      <SiteHeader />
 
-      {/* Theme toggle pill (top-end) */}
-      <motion.button
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: EASE }}
-        type="button"
-        onClick={toggleTheme}
-        className="border-border bg-card/60 hover:bg-card absolute end-6 top-6 z-20 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-md transition"
-      >
-        {isDark ? <Moon className="size-4" /> : <Sun className="size-4" />}
-        {isDark ? t('settings.dark') : t('settings.light')}
-        <ChevronDown className="size-4 opacity-60" />
-      </motion.button>
+      <div className="relative flex flex-1 flex-col overflow-hidden">
+        {/* Ambient gradient orbs */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -left-40 -top-40 size-[34rem] rounded-full bg-[#5A3BFF]/25 blur-[130px]" />
+          <div className="absolute -bottom-48 left-1/4 size-[34rem] rounded-full bg-[#00C2A8]/20 blur-[130px]" />
+          <div className="absolute -right-32 top-1/3 size-[26rem] rounded-full bg-[#2D7CFF]/10 blur-[130px]" />
+        </div>
 
-      <div className="relative z-10 mx-auto grid min-h-dvh max-w-6xl items-center gap-12 px-6 py-16 lg:grid-cols-2 lg:gap-8 lg:px-8">
-        <AuthHero />
+        {/* Fills exactly what's left below the header, so the hero + card stay
+            vertically centered in the remaining viewport instead of the header
+            pushing them below the fold. */}
+        <div className="relative z-10 flex flex-1 items-center">
+          <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-6 py-16 lg:grid-cols-2 lg:gap-8 lg:px-8">
+            <AuthHero />
 
-        {/* ── Auth card (right) ── */}
-        <motion.section
-          initial={{ opacity: 0, y: 24, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.6, ease: EASE, delay: 0.1 }}
-          className="mx-auto w-full max-w-md"
-        >
-          {children}
-        </motion.section>
+            {/* ── Auth card (right) ── */}
+            <motion.section
+              initial={{ opacity: 0, y: 24, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.6, ease: EASE, delay: 0.1 }}
+              className="mx-auto w-full max-w-md"
+            >
+              {children}
+            </motion.section>
+          </div>
+        </div>
       </div>
     </div>
   );

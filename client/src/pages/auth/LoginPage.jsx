@@ -45,83 +45,28 @@ export function LoginPage() {
     'border-border bg-foreground/[0.03] focus:border-primary focus:ring-primary/25 h-12 w-full rounded-xl border ps-11 pe-4 text-sm outline-none transition placeholder:text-muted-foreground focus:ring-2 dark:bg-white/5';
 
   return (
-    <div className="bg-background text-foreground relative min-h-dvh overflow-hidden">
-      {/* Ambient gradient orbs */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-40 -top-40 size-[34rem] rounded-full bg-[#5A3BFF]/25 blur-[130px]" />
-        <div className="absolute -bottom-48 left-1/4 size-[34rem] rounded-full bg-[#00C2A8]/20 blur-[130px]" />
-        <div className="absolute -right-32 top-1/3 size-[26rem] rounded-full bg-[#2D7CFF]/10 blur-[130px]" />
-      </div>
-
-      {/* Theme toggle pill (top-end) */}
-      <button
-        type="button"
-        onClick={toggleTheme}
-        className="border-border bg-card/60 hover:bg-card absolute end-6 top-6 z-20 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-md transition"
+    <AuthPageShell>
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        className="border-border bg-card/70 rounded-3xl border p-8 shadow-2xl backdrop-blur-xl sm:p-10"
       >
-        {isDark ? <Moon className="size-4" /> : <Sun className="size-4" />}
-        {isDark ? t('settings.dark') : t('settings.light')}
-        <ChevronDown className="size-4 opacity-60" />
-      </button>
-
-      <div className="relative z-10 mx-auto grid min-h-dvh max-w-6xl items-center gap-12 px-6 py-16 lg:grid-cols-2 lg:gap-8 lg:px-8">
-        {/* ── Hero (left) ── */}
-        <section className="hidden lg:block">
-          <span className="border-border bg-card/50 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm backdrop-blur-sm">
-            <Users className="text-primary size-4" />
-            {t('auth.badge')}
-          </span>
-
-          <h1 className="mt-8 text-6xl font-extrabold leading-[1.05] tracking-tight">
-            {t('auth.heroLead')}
-            <br />
-            <span
-              className="bg-clip-text text-transparent"
-              style={{ backgroundImage: BRAND_GRADIENT }}
-            >
-              {t('auth.heroAccent')}
-            </span>
-          </h1>
-
-          <p className="text-muted-foreground mt-6 max-w-md text-lg leading-relaxed">
-            {t('auth.heroDesc')}
-          </p>
-
-          <div className="mt-10 space-y-6">
-            <Feature icon={Users} title={t('auth.feat1Title')} desc={t('auth.feat1Desc')} />
-            <Feature icon={CircleCheck} title={t('auth.feat2Title')} desc={t('auth.feat2Desc')} />
-            <Feature icon={LineChart} title={t('auth.feat3Title')} desc={t('auth.feat3Desc')} />
-          </div>
-
-          {/* Dotted decoration */}
+        {/* Logo mark with glow */}
+        <motion.div variants={fadeUpItem} className="relative mx-auto w-fit">
           <div
             aria-hidden
-            className="text-primary/40 mt-12 h-24 w-36"
-            style={{
-              backgroundImage: 'radial-gradient(currentColor 1.6px, transparent 1.6px)',
-              backgroundSize: '20px 20px',
-            }}
+            className="absolute inset-0 rounded-2xl opacity-60 blur-xl"
+            style={{ backgroundImage: BRAND_GRADIENT }}
           />
-        </section>
-
-        {/* ── Auth card (right) ── */}
-        <section className="mx-auto w-full max-w-md">
-          <div className="border-border bg-card/70 rounded-3xl border p-8 shadow-2xl backdrop-blur-xl sm:p-10">
-            {/* Logo mark with glow */}
-            <div className="relative mx-auto w-fit">
-              <div
-                aria-hidden
-                className="absolute inset-0 rounded-2xl opacity-60 blur-xl"
-                style={{ backgroundImage: BRAND_GRADIENT }}
-              />
-              <img
-                src={logoMark}
-                alt="TaskControl"
-                className="relative size-16 rounded-2xl"
-                width={64}
-                height={64}
-              />
-            </div>
+          <img
+            src={logoMark}
+            alt="TaskControl"
+            className="relative size-16 rounded-2xl"
+            width={64}
+            height={64}
+          />
+        </motion.div>
 
         <motion.h2
           variants={fadeUpItem}

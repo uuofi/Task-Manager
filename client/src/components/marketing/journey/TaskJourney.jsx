@@ -234,7 +234,7 @@ export function TaskJourney() {
               })}
 
               {/* Vertical stepper — far right, spanning the stage height. */}
-              <div className="absolute end-1 top-[9%] bottom-[9%] z-20">
+              <div className="absolute -end-6 top-[9%] bottom-[9%] z-20">
                 <JourneyStepper
                   chapters={JOURNEY_CHAPTERS}
                   activeIndex={activeIndex}

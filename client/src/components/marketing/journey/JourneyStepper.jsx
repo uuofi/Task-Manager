@@ -38,13 +38,17 @@ export function JourneyStepper({ chapters, activeIndex, complete }) {
       {/* Background rail — spans from first node center to last node center. */}
       <span
         aria-hidden="true"
-        className="absolute start-[11px] top-[11px] bottom-[11px] w-0.5 rounded-full bg-white/12"
+        className="absolute start-[11px] top-[11px] bottom-[11px] w-0.5 rounded-full bg-black/40"
+        style={{ boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.6)' }}
       />
       {/* Filled rail — grows to the current node. */}
       <span
         aria-hidden="true"
-        className="absolute start-[11px] top-[11px] w-0.5 rounded-full bg-white/80 transition-[height] duration-700 ease-out"
-        style={{ height: `calc((100% - 22px) * ${fillRatio})` }}
+        className="absolute start-[11px] top-[11px] w-0.5 rounded-full bg-gradient-to-b from-white to-white/70 transition-[height] duration-700 ease-out"
+        style={{
+          height: `calc((100% - 22px) * ${fillRatio})`,
+          boxShadow: '0 0 8px 1px rgba(255,255,255,0.35)',
+        }}
       />
 
       {nodes.map((node) => {
@@ -58,26 +62,35 @@ export function JourneyStepper({ chapters, activeIndex, complete }) {
               className="grid size-[23px] shrink-0 place-items-center rounded-full border-2 transition-all duration-500"
               style={{
                 borderColor: reached ? node.accent : 'rgba(255,255,255,0.25)',
-                backgroundColor: reached ? node.accent : 'transparent',
-                boxShadow: isCurrent ? `0 0 16px 2px ${node.accent}` : 'none',
+                background: reached
+                  ? `radial-gradient(circle at 35% 30%, color-mix(in srgb, ${node.accent} 70%, white), ${node.accent} 65%)`
+                  : 'radial-gradient(circle at 35% 30%, rgba(255,255,255,0.08), rgba(255,255,255,0.02))',
+                boxShadow: isCurrent
+                  ? `0 0 20px 4px ${node.accent}, 0 3px 6px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.6)`
+                  : reached
+                    ? `0 2px 4px rgba(0,0,0,0.45), inset 0 1px 1px rgba(255,255,255,0.5)`
+                    : 'inset 0 1px 2px rgba(0,0,0,0.5)',
                 transform: isCurrent ? 'scale(1.25)' : 'scale(1)',
               }}
             >
-              {node.isCompleted && reached && <Check className="size-3.5 text-[#0D1321]" />}
+              {node.isCompleted && reached && <Check className="size-3.5 text-[#0D1321] drop-shadow-sm" />}
             </span>
 
             <div className="leading-tight">
               {!node.isCompleted && (
                 <span
                   className="block text-sm font-bold tabular-nums transition-colors duration-500"
-                  style={{ color: reached ? node.accent : 'rgba(255,255,255,0.4)' }}
+                  style={{
+                    color: reached ? node.accent : 'rgba(255,255,255,0.4)',
+                    textShadow: reached ? '0 1px 3px rgba(0,0,0,0.5)' : 'none',
+                  }}
                 >
                   {String(node.index + 1).padStart(2, '0')}
                 </span>
               )}
               <span
                 className={cn(
-                  'block text-sm font-medium transition-colors duration-500',
+                  'block text-sm font-medium transition-colors duration-500 [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]',
                   isCurrent ? 'text-white' : reached ? 'text-white/75' : 'text-white/40',
                 )}
               >
