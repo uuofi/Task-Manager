@@ -171,6 +171,195 @@ const resources = {
         licenseDesc: 'Released under the MIT License — free to use, modify and distribute.',
         issuesCta: 'Browse open issues',
       },
+      footer: {
+        tagline:
+          'TaskControl helps teams plan, track, and ship their work together — assign tasks, follow progress, and stay in sync in one place.',
+        productHeading: 'Product',
+        legalHeading: 'Legal',
+        privacyPolicy: 'Privacy Policy',
+        terms: 'Terms & Conditions',
+        intellectualProperty: 'Intellectual Property',
+        contact: 'Contact',
+        rights: '© {{year}} TaskControl. All rights reserved.',
+      },
+      legal: {
+        lastUpdated: 'Last updated: July 11, 2026',
+        privacy: {
+          title: 'Privacy Policy',
+          intro:
+            'This Privacy Policy explains how TaskControl, operated by Taskat ("we", "us", "our"), collects, uses, and protects your information when you use our website and application (the "Service").',
+          sections: [
+            {
+              heading: 'Information We Collect',
+              body: `We collect information you provide directly to us and information collected automatically when you use the Service.
+
+- Account information: your name, email address, and password when you register.
+- Workspace content: projects, tasks, comments, attachments, and other content you create.
+- Usage data: pages visited, actions taken, and device/browser information.
+- Contact form submissions: your name, email address, and message when you reach out to us.`,
+            },
+            {
+              heading: 'How We Use Your Information',
+              body: `We use the information we collect to:
+
+- Provide, maintain, and improve the Service.
+- Authenticate your account and keep it secure.
+- Send you service-related notifications, such as task updates and invitations.
+- Respond to your questions and support requests.
+- Monitor and analyze usage trends to improve performance and reliability.`,
+            },
+            {
+              heading: 'Cookies & Local Storage',
+              body: 'We use cookies and browser local storage to keep you signed in, remember your language and theme preferences, and understand how the Service is used. You can control cookies through your browser settings, though disabling them may affect some features.',
+            },
+            {
+              heading: 'Sharing Your Information',
+              body: `We do not sell your personal information. We may share it with:
+
+- Other members of a workspace you join, to the extent needed for collaboration.
+- Service providers who help us operate the Service (such as hosting and email delivery), under confidentiality obligations.
+- Authorities, when required by law or to protect the rights and safety of our users.`,
+            },
+            {
+              heading: 'Data Security',
+              body: 'We use reasonable technical and organizational measures — including encrypted connections, hashed passwords, and access controls — to protect your information. No method of transmission or storage is completely secure, and we cannot guarantee absolute security.',
+            },
+            {
+              heading: 'Data Retention',
+              body: 'We retain your information for as long as your account is active or as needed to provide the Service. You may request deletion of your account and associated data at any time by contacting us.',
+            },
+            {
+              heading: 'Your Rights & Choices',
+              body: 'Depending on your location, you may have the right to access, correct, export, or delete your personal information. You can update most of your information directly from your account settings, or contact us to make a request.',
+            },
+            {
+              heading: "Children's Privacy",
+              body: 'The Service is not directed to children under 16, and we do not knowingly collect personal information from them. If you believe a child has provided us with personal information, please contact us so we can remove it.',
+            },
+            {
+              heading: 'Changes to This Policy',
+              body: 'We may update this Privacy Policy from time to time. We will post the updated version on this page with a new "Last updated" date, and material changes will be communicated where appropriate.',
+            },
+            {
+              heading: 'Contact Us',
+              body: 'If you have questions about this Privacy Policy or how we handle your information, please reach out through our Contact page.',
+            },
+          ],
+        },
+        terms: {
+          title: 'Terms & Conditions',
+          intro:
+            'These Terms & Conditions ("Terms") govern your access to and use of TaskControl, operated by Taskat ("we", "us", "our"). By creating an account or using the Service, you agree to these Terms.',
+          sections: [
+            {
+              heading: 'Acceptance of Terms',
+              body: 'By accessing or using TaskControl, you confirm that you have read, understood, and agree to be bound by these Terms and our Privacy Policy. If you do not agree, please do not use the Service.',
+            },
+            {
+              heading: 'Using TaskControl',
+              body: 'TaskControl provides tools for teams to organize work, assign tasks, track progress, and collaborate. We may add, change, or remove features over time, and we will try to give reasonable notice of significant changes.',
+            },
+            {
+              heading: 'Your Account',
+              body: 'You must provide accurate information when creating an account and keep your password secure. You are responsible for all activity that occurs under your account, and you should notify us promptly of any unauthorized use.',
+            },
+            {
+              heading: 'Acceptable Use',
+              body: `When using the Service, you agree not to:
+
+- Violate any applicable law or the rights of others.
+- Upload malicious code or attempt to disrupt or gain unauthorized access to the Service.
+- Use the Service to send spam, abusive content, or infringing material.
+- Reverse-engineer or resell the Service except as permitted by our open-source license.`,
+            },
+            {
+              heading: 'Your Content',
+              body: 'You retain ownership of the content you create in your workspace (projects, tasks, comments, and attachments). By using the Service, you grant us a limited license to host, store, and display that content solely to provide the Service to you and your workspace members.',
+            },
+            {
+              heading: 'Intellectual Property',
+              body: 'The TaskControl name, logo, and branding are the property of Taskat. The underlying source code is available under an open-source license — see our Intellectual Property page for details on what is open source and what remains proprietary.',
+            },
+            {
+              heading: 'Service Availability',
+              body: 'We aim to keep the Service available and reliable, but we do not guarantee uninterrupted access. The Service may be temporarily unavailable for maintenance, updates, or reasons beyond our control.',
+            },
+            {
+              heading: 'Termination',
+              body: 'You may stop using the Service and delete your account at any time. We may suspend or terminate accounts that violate these Terms, misuse the Service, or pose a security risk, with notice where reasonably possible.',
+            },
+            {
+              heading: 'Disclaimer of Warranties',
+              body: 'The Service is provided "as is" and "as available" without warranties of any kind, express or implied, including fitness for a particular purpose, merchantability, or non-infringement.',
+            },
+            {
+              heading: 'Limitation of Liability',
+              body: 'To the fullest extent permitted by law, Taskat and TaskControl will not be liable for any indirect, incidental, special, or consequential damages arising from your use of the Service.',
+            },
+            {
+              heading: 'Governing Law',
+              body: 'These Terms are governed by applicable local law, without regard to conflict-of-law principles, unless otherwise required by mandatory law in your jurisdiction.',
+            },
+            {
+              heading: 'Changes to These Terms',
+              body: 'We may revise these Terms from time to time. Continued use of the Service after changes take effect constitutes acceptance of the updated Terms.',
+            },
+            {
+              heading: 'Contact Us',
+              body: 'Questions about these Terms can be sent to us through our Contact page.',
+            },
+          ],
+        },
+        ip: {
+          title: 'Intellectual Property',
+          intro:
+            'This page explains how intellectual property works across TaskControl — what is open source, what belongs to Taskat, and how to reach us about content or trademark concerns.',
+          sections: [
+            {
+              heading: 'Ownership of TaskControl',
+              body: 'The TaskControl application, including its design, user interface, and branding, is developed and operated by Taskat. Except for the open-source components described below, all rights not expressly granted to you are reserved.',
+            },
+            {
+              heading: 'Open Source License',
+              body: "TaskControl's source code is released under the MIT License. You are free to view, fork, run locally, modify, and contribute to the codebase in accordance with that license. The MIT License applies to the code itself — it does not grant rights to the TaskControl name, logo, or brand identity.",
+            },
+            {
+              heading: 'Trademarks & Branding',
+              body: '"TaskControl" and the TaskControl logo are trademarks of Taskat. You may reference them to describe your use of or contribution to the open-source project, but you may not use them to imply endorsement, or in a way that could confuse users about the source of a product or service.',
+            },
+            {
+              heading: 'Your Content',
+              body: 'Any projects, tasks, comments, or files you create within your workspace remain your property. We do not claim ownership over your content; we only use it as needed to operate the Service, as described in our Privacy Policy.',
+            },
+            {
+              heading: 'Third-Party Materials',
+              body: 'TaskControl may include open-source libraries and other third-party materials, each governed by its own license. Those licenses remain in effect and are not superseded by this page.',
+            },
+            {
+              heading: 'Reporting Infringement',
+              body: 'If you believe content on TaskControl infringes your intellectual property rights, please contact us with enough detail to identify the material and your rights in it (such as a description, its location, and your contact information), and we will review and respond promptly.',
+            },
+            {
+              heading: 'Contact Us',
+              body: 'For any intellectual property questions, please reach out through our Contact page.',
+            },
+          ],
+        },
+      },
+      contact: {
+        eyebrow: 'Get in touch',
+        title: "We'd love to hear from you",
+        subtitle:
+          'Have a question, feedback, or found a bug? Send us a message and we will get back to you as soon as we can.',
+        name: 'Name',
+        subject: 'Subject',
+        message: 'Message',
+        send: 'Send message',
+        successTitle: 'Message sent',
+        successDesc: "Thanks for reaching out — we'll get back to you soon.",
+        sendAnother: 'Send another message',
+        error: 'Could not send your message. Please try again.',
+      },
       dashboard: {
         greeting: 'Good to see you, {{name}} 👋',
         subtitle: "Here's what's on your plate today.",
@@ -458,6 +647,194 @@ const resources = {
         licenseTitle: 'الرخصة',
         licenseDesc: 'متاح برخصة MIT — حرية الاستخدام والتعديل والتوزيع.',
         issuesCta: 'تصفّح المشكلات المفتوحة',
+      },
+      footer: {
+        tagline:
+          'يساعد تاسك كنترول الفرق على تخطيط أعمالهم وتتبعها وإنجازها معًا — أسنِد المهام، تابع التقدّم، وابقوا متزامنين في مكان واحد.',
+        productHeading: 'المنتج',
+        legalHeading: 'قانوني',
+        privacyPolicy: 'سياسة الخصوصية',
+        terms: 'الشروط والأحكام',
+        intellectualProperty: 'الملكية الفكرية',
+        contact: 'تواصل',
+        rights: '© {{year}} تاسك كنترول. جميع الحقوق محفوظة.',
+      },
+      legal: {
+        lastUpdated: 'آخر تحديث: 11 يوليو 2026',
+        privacy: {
+          title: 'سياسة الخصوصية',
+          intro:
+            'توضح سياسة الخصوصية هذه كيف يقوم تاسك كنترول، الذي تديره تاسكات ("نحن")، بجمع معلوماتك واستخدامها وحمايتها عند استخدامك لموقعنا وتطبيقنا ("الخدمة").',
+          sections: [
+            {
+              heading: 'المعلومات التي نجمعها',
+              body: `نجمع المعلومات التي تزوّدنا بها مباشرة، والمعلومات التي تُجمع تلقائيًا عند استخدامك للخدمة.
+
+- معلومات الحساب: اسمك وبريدك الإلكتروني وكلمة المرور عند التسجيل.
+- محتوى مساحة العمل: المشاريع والمهام والتعليقات والمرفقات وأي محتوى آخر تنشئه.
+- بيانات الاستخدام: الصفحات التي تزورها، والإجراءات التي تقوم بها، ومعلومات الجهاز والمتصفح.
+- رسائل نموذج التواصل: اسمك وبريدك الإلكتروني ورسالتك عند التواصل معنا.`,
+            },
+            {
+              heading: 'كيف نستخدم معلوماتك',
+              body: `نستخدم المعلومات التي نجمعها من أجل:
+
+- تقديم الخدمة وصيانتها وتحسينها.
+- التحقق من هويتك والحفاظ على أمان حسابك.
+- إرسال إشعارات متعلقة بالخدمة، مثل تحديثات المهام والدعوات.
+- الرد على استفساراتك وطلبات الدعم.
+- مراقبة اتجاهات الاستخدام وتحليلها لتحسين الأداء والموثوقية.`,
+            },
+            {
+              heading: 'ملفات تعريف الارتباط والتخزين المحلي',
+              body: 'نستخدم ملفات تعريف الارتباط والتخزين المحلي في المتصفح لإبقائك مسجّل الدخول، وتذكّر تفضيلاتك للغة والمظهر، وفهم كيفية استخدام الخدمة. يمكنك التحكم بملفات تعريف الارتباط من إعدادات متصفحك، مع أن تعطيلها قد يؤثر على بعض الميزات.',
+            },
+            {
+              heading: 'مشاركة معلوماتك',
+              body: `لا نبيع معلوماتك الشخصية. قد نشاركها مع:
+
+- أعضاء آخرين في مساحة العمل التي تنضم إليها، بالقدر اللازم للتعاون.
+- مزوّدي الخدمات الذين يساعدوننا في تشغيل الخدمة (مثل الاستضافة وإرسال البريد الإلكتروني)، بموجب التزامات السرية.
+- الجهات الرسمية، عند اقتضاء القانون ذلك أو لحماية حقوق مستخدمينا وسلامتهم.`,
+            },
+            {
+              heading: 'أمان البيانات',
+              body: 'نستخدم إجراءات تقنية وتنظيمية معقولة — تشمل الاتصالات المشفّرة، وتجزئة كلمات المرور، وضوابط الوصول — لحماية معلوماتك. لا توجد طريقة نقل أو تخزين آمنة بشكل كامل، ولا يمكننا ضمان الأمان المطلق.',
+            },
+            {
+              heading: 'الاحتفاظ بالبيانات',
+              body: 'نحتفظ بمعلوماتك طالما كان حسابك نشطًا أو بالقدر اللازم لتقديم الخدمة. يمكنك طلب حذف حسابك والبيانات المرتبطة به في أي وقت عبر التواصل معنا.',
+            },
+            {
+              heading: 'حقوقك وخياراتك',
+              body: 'حسب موقعك، قد يكون لديك الحق في الوصول إلى معلوماتك الشخصية أو تصحيحها أو تصديرها أو حذفها. يمكنك تحديث معظم معلوماتك مباشرة من إعدادات حسابك، أو التواصل معنا لتقديم طلب.',
+            },
+            {
+              heading: 'خصوصية الأطفال',
+              body: 'الخدمة غير موجّهة للأطفال دون سن 16 عامًا، ولا نقوم عن قصد بجمع معلومات شخصية منهم. إذا كنت تعتقد أن طفلًا زوّدنا بمعلومات شخصية، يُرجى التواصل معنا لإزالتها.',
+            },
+            {
+              heading: 'التغييرات على هذه السياسة',
+              body: 'قد نحدّث سياسة الخصوصية هذه من وقت لآخر. سننشر النسخة المحدثة على هذه الصفحة مع تاريخ "آخر تحديث" جديد، وسنُبلغ عن التغييرات الجوهرية عند الاقتضاء.',
+            },
+            {
+              heading: 'تواصل معنا',
+              body: 'إذا كانت لديك أسئلة حول سياسة الخصوصية هذه أو كيفية تعاملنا مع معلوماتك، يُرجى التواصل معنا عبر صفحة التواصل.',
+            },
+          ],
+        },
+        terms: {
+          title: 'الشروط والأحكام',
+          intro:
+            'تحكم هذه الشروط والأحكام ("الشروط") وصولك إلى تاسك كنترول واستخدامك له، الذي تديره تاسكات ("نحن"). بإنشائك حسابًا أو استخدامك للخدمة، فإنك توافق على هذه الشروط.',
+          sections: [
+            {
+              heading: 'قبول الشروط',
+              body: 'باستخدامك أو وصولك إلى تاسك كنترول، فإنك تؤكد أنك قرأت هذه الشروط وسياسة الخصوصية وفهمتهما وتوافق على الالتزام بهما. إذا كنت لا توافق، يُرجى عدم استخدام الخدمة.',
+            },
+            {
+              heading: 'استخدام تاسك كنترول',
+              body: 'يوفّر تاسك كنترول أدوات للفرق لتنظيم العمل وإسناد المهام وتتبّع التقدّم والتعاون. قد نضيف ميزات أو نغيّرها أو نزيلها بمرور الوقت، وسنحاول تقديم إشعار معقول بالتغييرات الجوهرية.',
+            },
+            {
+              heading: 'حسابك',
+              body: 'يجب عليك تقديم معلومات دقيقة عند إنشاء حسابك والحفاظ على سرية كلمة المرور. أنت مسؤول عن جميع الأنشطة التي تتم عبر حسابك، وعليك إبلاغنا فورًا بأي استخدام غير مصرّح به.',
+            },
+            {
+              heading: 'الاستخدام المقبول',
+              body: `عند استخدامك للخدمة، توافق على عدم:
+
+- مخالفة أي قانون معمول به أو حقوق الآخرين.
+- رفع برمجيات ضارة أو محاولة تعطيل الخدمة أو الوصول غير المصرّح به إليها.
+- استخدام الخدمة لإرسال رسائل مزعجة أو محتوى مسيء أو مخالف لحقوق الغير.
+- إعادة هندسة الخدمة أو إعادة بيعها إلا بما تسمح به رخصة المصدر المفتوح.`,
+            },
+            {
+              heading: 'محتواك',
+              body: 'تحتفظ بملكية المحتوى الذي تنشئه في مساحة عملك (المشاريع والمهام والتعليقات والمرفقات). باستخدامك للخدمة، فإنك تمنحنا ترخيصًا محدودًا لاستضافة هذا المحتوى وتخزينه وعرضه، فقط بغرض تقديم الخدمة لك ولأعضاء مساحة عملك.',
+            },
+            {
+              heading: 'الملكية الفكرية',
+              body: 'اسم تاسك كنترول وشعاره وهويته البصرية ملك لتاسكات. الكود المصدري متاح برخصة مفتوحة المصدر — راجع صفحة الملكية الفكرية لمعرفة ما هو مفتوح المصدر وما يبقى مملوكًا حصريًا.',
+            },
+            {
+              heading: 'توفر الخدمة',
+              body: 'نسعى لإبقاء الخدمة متاحة وموثوقة، لكننا لا نضمن الوصول دون انقطاع. قد تكون الخدمة غير متاحة مؤقتًا لأغراض الصيانة أو التحديثات أو لأسباب خارجة عن إرادتنا.',
+            },
+            {
+              heading: 'إنهاء الحساب',
+              body: 'يمكنك التوقف عن استخدام الخدمة وحذف حسابك في أي وقت. يجوز لنا تعليق أو إنهاء الحسابات التي تخالف هذه الشروط أو تسيء استخدام الخدمة أو تشكّل خطرًا أمنيًا، مع إشعار عندما يكون ذلك ممكنًا.',
+            },
+            {
+              heading: 'إخلاء المسؤولية عن الضمانات',
+              body: 'تُقدَّم الخدمة "كما هي" و"كما هي متاحة" دون أي ضمانات من أي نوع، صريحة أو ضمنية، بما في ذلك الملاءمة لغرض معين أو قابلية التسويق أو عدم الانتهاك.',
+            },
+            {
+              heading: 'تحديد المسؤولية',
+              body: 'إلى أقصى حد يسمح به القانون، لن تكون تاسكات أو تاسك كنترول مسؤولة عن أي أضرار غير مباشرة أو عرضية أو خاصة أو تبعية ناتجة عن استخدامك للخدمة.',
+            },
+            {
+              heading: 'القانون الحاكم',
+              body: 'تخضع هذه الشروط للقانون المحلي المعمول به، بصرف النظر عن تنازع القوانين، ما لم يقتضِ القانون الإلزامي في نطاقك القضائي خلاف ذلك.',
+            },
+            {
+              heading: 'تغييرات على هذه الشروط',
+              body: 'قد نراجع هذه الشروط من وقت لآخر. استمرار استخدامك للخدمة بعد سريان التغييرات يُعد قبولًا للشروط المحدّثة.',
+            },
+            {
+              heading: 'تواصل معنا',
+              body: 'يمكن إرسال أي أسئلة حول هذه الشروط إلينا عبر صفحة التواصل.',
+            },
+          ],
+        },
+        ip: {
+          title: 'الملكية الفكرية',
+          intro:
+            'توضح هذه الصفحة كيفية عمل الملكية الفكرية في تاسك كنترول — ما هو مفتوح المصدر، وما يخص تاسكات، وكيفية التواصل معنا بشأن المحتوى أو العلامة التجارية.',
+          sections: [
+            {
+              heading: 'ملكية تاسك كنترول',
+              body: 'يتم تطوير تطبيق تاسك كنترول وتشغيله من قِبل تاسكات، بما يشمل تصميمه وواجهته وهويته البصرية. باستثناء المكوّنات مفتوحة المصدر الموضحة أدناه، جميع الحقوق غير الممنوحة صراحة لك محفوظة.',
+            },
+            {
+              heading: 'رخصة المصدر المفتوح',
+              body: 'الكود المصدري لتاسك كنترول متاح برخصة MIT. يمكنك الاطّلاع عليه وعمل Fork له وتشغيله محليًا وتعديله والمساهمة فيه وفقًا لتلك الرخصة. تنطبق رخصة MIT على الكود نفسه فقط — ولا تمنحك حقوقًا في اسم تاسك كنترول أو شعاره أو هويته التجارية.',
+            },
+            {
+              heading: 'العلامات التجارية والهوية',
+              body: '"تاسك كنترول" وشعاره علامتان تجاريتان لتاسكات. يمكنك الإشارة إليهما لوصف استخدامك للمشروع مفتوح المصدر أو مساهمتك فيه، لكن لا يجوز لك استخدامهما لما يوحي بتزكية رسمية، أو بطريقة قد تُربك المستخدمين حول مصدر منتج أو خدمة.',
+            },
+            {
+              heading: 'محتواك',
+              body: 'أي مشاريع أو مهام أو تعليقات أو ملفات تنشئها داخل مساحة عملك تبقى ملكًا لك. نحن لا نطالب بملكية محتواك؛ نستخدمه فقط بالقدر اللازم لتشغيل الخدمة، كما هو موضح في سياسة الخصوصية.',
+            },
+            {
+              heading: 'مواد الأطراف الثالثة',
+              body: 'قد يتضمن تاسك كنترول مكتبات مفتوحة المصدر ومواد أخرى من أطراف ثالثة، لكل منها رخصتها الخاصة. تظل تلك الرخص سارية ولا تحل هذه الصفحة محلها.',
+            },
+            {
+              heading: 'الإبلاغ عن انتهاك الحقوق',
+              body: 'إذا كنت تعتقد أن محتوى على تاسك كنترول ينتهك حقوق ملكيتك الفكرية، يُرجى التواصل معنا مع تفاصيل كافية لتحديد المادة وحقوقك فيها (مثل وصف لها، وموقعها، وبيانات التواصل معك)، وسنراجع الأمر ونرد بأسرع وقت.',
+            },
+            {
+              heading: 'تواصل معنا',
+              body: 'لأي أسئلة تتعلق بالملكية الفكرية، يُرجى التواصل معنا عبر صفحة التواصل.',
+            },
+          ],
+        },
+      },
+      contact: {
+        eyebrow: 'تواصل معنا',
+        title: 'يسعدنا سماع رأيك',
+        subtitle: 'هل لديك سؤال أو ملاحظة أو وجدت خطأ؟ أرسل لنا رسالة وسنرد عليك في أقرب وقت ممكن.',
+        name: 'الاسم',
+        subject: 'الموضوع',
+        message: 'الرسالة',
+        send: 'إرسال الرسالة',
+        successTitle: 'تم إرسال الرسالة',
+        successDesc: 'شكرًا لتواصلك معنا — سنرد عليك قريبًا.',
+        sendAnother: 'إرسال رسالة أخرى',
+        error: 'تعذّر إرسال رسالتك. يُرجى المحاولة مرة أخرى.',
       },
       dashboard: {
         greeting: 'سعداء برؤيتك، {{name}} 👋',

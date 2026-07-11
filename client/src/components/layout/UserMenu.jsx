@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { LogOut, MailCheck, Settings, User as UserIcon } from 'lucide-react';
+import { LogOut, Settings, User as UserIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -46,9 +46,6 @@ export function UserMenu() {
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate('/app/settings')}>
           <Settings /> {t('nav.settings')}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate('/accept-invite')}>
-          <MailCheck /> Accept Invitation
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

@@ -93,10 +93,6 @@ export const invitationsApi = {
     const { data } = await axiosClient.get('/invitations');
     return data.data;
   },
-  async accept(token) {
-    const { data } = await axiosClient.post('/invitations/accept', { token });
-    return data.data;
-  },
   async respond(id, action) {
     const { data } = await axiosClient.post(`/invitations/${id}/respond`, { action });
     return data.data;
@@ -151,6 +147,13 @@ export const dashboardApi = {
   },
   async team() {
     const { data } = await axiosClient.get('/dashboard/team');
+    return data.data;
+  },
+};
+
+export const contactApi = {
+  async submit(payload) {
+    const { data } = await axiosClient.post('/contact', payload);
     return data.data;
   },
 };

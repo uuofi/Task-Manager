@@ -14,6 +14,10 @@ import { ProtectedRoute, PublicOnlyRoute } from './guards';
 // Code-split the authenticated app (charts, DnD, calendar are heavy) so the
 // initial load stays lean.
 const AppLayout = lazy(() => import('@/layouts/AppLayout'));
+const ContactPage = lazy(() => import('@/pages/ContactPage'));
+const PrivacyPolicyPage = lazy(() => import('@/pages/legal/PrivacyPolicyPage'));
+const TermsPage = lazy(() => import('@/pages/legal/TermsPage'));
+const IntellectualPropertyPage = lazy(() => import('@/pages/legal/IntellectualPropertyPage'));
 const DashboardPage = lazy(() => import('@/pages/app/DashboardPage'));
 const ProjectsPage = lazy(() => import('@/pages/app/ProjectsPage'));
 const ProjectBoardPage = lazy(() => import('@/pages/app/ProjectBoardPage'));
@@ -27,7 +31,6 @@ const TeamInsightsPage = lazy(() => import('@/pages/app/TeamInsightsPage'));
 const NotificationsPage = lazy(() => import('@/pages/app/NotificationsPage'));
 const ProfilePage = lazy(() => import('@/pages/app/ProfilePage'));
 const SettingsPage = lazy(() => import('@/pages/app/SettingsPage'));
-const AcceptInvitePage = lazy(() => import('@/pages/auth/AcceptInvitePage'));
 
 /**
  * Application route tree.
@@ -40,6 +43,10 @@ export const router = createBrowserRouter([
     path: '/',
     element: <LandingPage />,
   },
+  { path: '/privacy-policy', element: <PrivacyPolicyPage /> },
+  { path: '/terms', element: <TermsPage /> },
+  { path: '/intellectual-property', element: <IntellectualPropertyPage /> },
+  { path: '/contact', element: <ContactPage /> },
   {
     element: <PublicOnlyRoute />,
     children: [
@@ -58,7 +65,6 @@ export const router = createBrowserRouter([
   {
     element: <ProtectedRoute />,
     children: [
-      { path: '/accept-invite', element: <AcceptInvitePage /> },
       {
         path: '/app',
         element: <AppLayout />,

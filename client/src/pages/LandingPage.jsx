@@ -8,6 +8,7 @@ import { ContractShowcase } from '@/components/marketing/ContractShowcase';
 import { ContributeShowcase } from '@/components/marketing/ContributeShowcase';
 import { DashboardPreview } from '@/components/marketing/DashboardPreview';
 import { TaskJourney } from '@/components/marketing/journey/TaskJourney';
+import { SiteFooter } from '@/components/marketing/SiteFooter';
 import { SiteHeader } from '@/components/marketing/SiteHeader';
 import { Button } from '@/components/ui/button';
 
@@ -143,9 +144,7 @@ export function LandingPage() {
         {/* Open source — how to run it locally and contribute. */}
         <ContributeShowcase />
 
-        <footer className="border-border/60 text-muted-foreground relative z-10 border-t py-8 text-center text-sm">
-          © {new Date().getFullYear()} TaskControl. Crafted for teams that ship.
-        </footer>
+        <SiteFooter />
       </div>
     </div>
   );
