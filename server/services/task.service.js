@@ -1,3 +1,4 @@
+import { logger } from '../config/logger.js';
 import {
   ACTIVITY_ACTION,
   ENTITY_TYPE,
@@ -13,10 +14,12 @@ import { taskRepository } from '../repositories/task.repository.js';
 import { realtime } from '../sockets/emitter.js';
 import { ApiError } from '../utils/ApiError.js';
 
-import { logger } from '../config/logger.js';
 import { activityService } from './activity.service.js';
+import { cacheService } from './cache.service.js';
 import { sendTaskCreatedEmail } from './email.service.js';
 import { notificationService } from './notification.service.js';
+
+const LIST_CACHE_TTL_SECONDS = 30;
 
 const taskLink = (taskId) => `/app/tasks/${taskId}`;
 
@@ -101,6 +104,8 @@ const create = async ({ workspace, project, user, data }) => {
     });
   }
 
+  await cacheService.bumpTaskVersion(workspace.id);
+
   const populated = await taskRepository.findByIdPopulated(task.id);
   realtime.emitToProject(project.id, SOCKET_EVENTS.TASK_CREATED, populated.toJSON());
 
@@ -131,7 +136,14 @@ const create = async ({ workspace, project, user, data }) => {
 
 const getById = (taskId) => taskRepository.findByIdPopulated(taskId);
 
-const list = ({ filters, pagination }) => taskRepository.paginate({ filters, ...pagination });
+/** Cached, versioned by workspace — writes bump the version so stale lists never serve. */
+const list = async ({ filters, pagination }) => {
+  const version = await cacheService.taskVersion(filters.workspace);
+  const key = `tasks:list:${filters.workspace}:${version}:${JSON.stringify({ filters, pagination })}`;
+  return cacheService.getOrSet(key, LIST_CACHE_TTL_SECONDS, () =>
+    taskRepository.paginate({ filters, ...pagination }),
+  );
+};
 
 const board = (projectId) => taskRepository.board(projectId);
 
@@ -229,6 +241,8 @@ const update = async ({ task, project, workspace, user, data }) => {
     await maybeSpawnRecurrence({ task, project, workspace, user });
   }
 
+  await cacheService.bumpTaskVersion(workspace.id);
+
   const populated = await taskRepository.findByIdPopulated(task.id);
   realtime.emitToProject(project.id, SOCKET_EVENTS.TASK_UPDATED, populated.toJSON());
   return populated;
@@ -280,6 +294,8 @@ const move = async ({ task, project, user, status, order }) => {
       changes: [{ field: 'status', from, to: status }],
     });
   }
+
+  await cacheService.bumpTaskVersion(task.workspace);
 
   const populated = await taskRepository.findByIdPopulated(task.id);
   realtime.emitToProject(project.id, SOCKET_EVENTS.TASK_UPDATED, populated.toJSON());
@@ -344,6 +360,7 @@ const remove = async ({ task, project, user, role }) => {
     TimeEntry.deleteMany({ task: task.id }),
   ]);
   await taskRepository.delete(task.id);
+  await cacheService.bumpTaskVersion(task.workspace);
 
   await activityService.log({
     workspace: task.workspace,

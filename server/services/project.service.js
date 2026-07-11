@@ -1,3 +1,5 @@
+import { env } from '../config/env.js';
+import { logger } from '../config/logger.js';
 import {
   ACTIVITY_ACTION,
   ENTITY_TYPE,
@@ -6,17 +8,15 @@ import {
   ROLE_RANK,
   ROLES,
 } from '../constants/index.js';
-import { env } from '../config/env.js';
-import { projectInvitationRepository } from '../repositories/projectInvitation.repository.js';
+import { invitationQueue } from '../queues/index.js';
 import { projectRepository } from '../repositories/project.repository.js';
+import { projectInvitationRepository } from '../repositories/projectInvitation.repository.js';
 import { userRepository } from '../repositories/user.repository.js';
 import { ApiError } from '../utils/ApiError.js';
 import { generateSecureToken, hashToken } from '../utils/crypto.js';
 import { slugify } from '../utils/slug.js';
 
-import { logger } from '../config/logger.js';
 import { activityService } from './activity.service.js';
-import { sendProjectInvitationEmail } from './email.service.js';
 
 /** Throws 403 unless `role` is at least as privileged as `minRole`. */
 const assertMinRole = (role, minRole) => {
@@ -224,7 +224,7 @@ const inviteMember = async ({ project, workspace, user, role, targetUserId, memb
 
   const acceptUrl = `${env.clientUrl}/accept-project-invite?token=${token}`;
 
-  const emailResult = await sendProjectInvitationEmail({
+  await invitationQueue.add('project-invite-email', {
     to: targetUser.email,
     inviterName: user.name,
     projectName: project.name,
@@ -233,7 +233,7 @@ const inviteMember = async ({ project, workspace, user, role, targetUserId, memb
     acceptUrl,
   });
 
-  logger.info(`[invite] email result: ${JSON.stringify(emailResult)} → to=${targetUser.email}`);
+  logger.info(`[invite] email queued → to=${targetUser.email}`);
 
   return { invited: true, email: targetUser.email };
 };

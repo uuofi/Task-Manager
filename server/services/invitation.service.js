@@ -1,4 +1,3 @@
-import { logger } from '../config/logger.js';
 import {
   ENTITY_TYPE,
   INVITATION_STATUS,
@@ -7,13 +6,13 @@ import {
   ROLES,
   SOCKET_EVENTS,
 } from '../constants/index.js';
+import { invitationQueue } from '../queues/index.js';
 import { invitationRepository } from '../repositories/invitation.repository.js';
 import { userRepository } from '../repositories/user.repository.js';
 import { realtime } from '../sockets/emitter.js';
 import { ApiError } from '../utils/ApiError.js';
 import { generateSecureToken } from '../utils/crypto.js';
 
-import { sendWorkspaceInviteNotificationEmail } from './email.service.js';
 import { notificationService } from './notification.service.js';
 
 const INVITE_TTL_DAYS = 7;
@@ -64,13 +63,13 @@ const invite = async ({ workspace, inviter, role, email, inviteRole }) => {
     entityId: invitation._id,
   });
 
-  // Email notification (best-effort — never block the invite on SMTP).
-  sendWorkspaceInviteNotificationEmail({
+  // Email notification (queued — retried automatically, never blocks the invite).
+  await invitationQueue.add('workspace-invite-email', {
     to: normalized,
     inviterName: inviter.name,
     workspaceName: workspace.name,
     role: finalRole,
-  }).catch((err) => logger.warn(`[invite] email notification failed: ${err.message}`));
+  });
 
   return invitation;
 };

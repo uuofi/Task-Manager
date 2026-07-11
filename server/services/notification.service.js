@@ -1,11 +1,12 @@
 import { logger } from '../config/logger.js';
-import { SOCKET_EVENTS } from '../constants/index.js';
+import { notificationQueue } from '../queues/index.js';
 import { notificationRepository } from '../repositories/notification.repository.js';
-import { realtime } from '../sockets/emitter.js';
 
 /**
- * Creates a notification for a single recipient and pushes it in realtime.
- * Skips self-notifications (you don't get notified about your own actions).
+ * Queues creation + realtime delivery of a notification for a single
+ * recipient (the `notifications` worker does the DB write and socket emit —
+ * see queues/workers.js). Skips self-notifications (you don't get notified
+ * about your own actions).
  *
  * @param {object} payload
  * @param {string} payload.recipient
@@ -21,16 +22,12 @@ import { realtime } from '../sockets/emitter.js';
  * @param {string} [payload.task]
  */
 const notify = async (payload) => {
-  if (payload.actor && String(payload.actor) === String(payload.recipient)) return null;
+  if (payload.actor && String(payload.actor) === String(payload.recipient)) return;
 
   try {
-    const notification = await notificationRepository.create(payload);
-    const data = notification.toJSON();
-    realtime.emitToUser(payload.recipient, SOCKET_EVENTS.NOTIFICATION_NEW, data);
-    return notification;
+    await notificationQueue.add('notify', payload);
   } catch (err) {
-    logger.warn(`Failed to create notification (${payload.type}): ${err.message}`);
-    return null;
+    logger.warn(`Failed to queue notification (${payload.type}): ${err.message}`);
   }
 };
 
@@ -41,14 +38,10 @@ const notifyMany = async (recipients, payload) => {
   );
   if (unique.length === 0) return;
 
-  const docs = unique.map((recipient) => ({ ...payload, recipient }));
   try {
-    const created = await notificationRepository.insertMany(docs);
-    created.forEach((n) =>
-      realtime.emitToUser(n.recipient, SOCKET_EVENTS.NOTIFICATION_NEW, n.toJSON()),
-    );
+    await notificationQueue.add('notify-many', { recipients: unique, payload });
   } catch (err) {
-    logger.warn(`Failed to fan-out notifications (${payload.type}): ${err.message}`);
+    logger.warn(`Failed to queue notification fan-out (${payload.type}): ${err.message}`);
   }
 };
 

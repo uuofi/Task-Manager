@@ -5,8 +5,10 @@ import { Workspace } from '../models/Workspace.js';
 import { taskRepository } from '../repositories/task.repository.js';
 
 import { activityService } from './activity.service.js';
+import { cacheService } from './cache.service.js';
 
 const OPEN_STATES = { $nin: [TASK_STATUS.DONE, TASK_STATUS.CANCELLED] };
+const DASHBOARD_CACHE_TTL_SECONDS = 30;
 
 const startOfToday = () => {
   const d = new Date();
@@ -27,7 +29,7 @@ const populateProject = (q) => q.populate('project', 'name key color');
  * today's work, overdue items, counts, status/priority breakdowns, project
  * progress and recent activity.
  */
-const getDashboard = async ({ workspace, user }) => {
+const computeDashboard = async ({ workspace, user }) => {
   const assigned = { workspace: workspace.id, assignee: user.id };
   const now = new Date();
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -123,7 +125,7 @@ const getDashboard = async ({ workspace, user }) => {
  * status/priority breakdowns and recent activity. Powers the Team Insights page
  * so managers can see how work is distributed and where the team is overloaded.
  */
-const getTeamAnalytics = async ({ workspace }) => {
+const computeTeamAnalytics = async ({ workspace }) => {
   const workspaceId = workspace._id;
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
@@ -189,6 +191,24 @@ const getTeamAnalytics = async ({ workspace }) => {
     priorityBreakdown: toMap(priorityAgg),
     generatedAt: new Date(),
   };
+};
+
+/** Cached per workspace+user, versioned by task writes (see cache.service.js). */
+const getDashboard = async ({ workspace, user }) => {
+  const version = await cacheService.taskVersion(workspace.id);
+  const key = `dashboard:${workspace.id}:${user.id}:${version}`;
+  return cacheService.getOrSet(key, DASHBOARD_CACHE_TTL_SECONDS, () =>
+    computeDashboard({ workspace, user }),
+  );
+};
+
+/** Cached per workspace, versioned by task writes. */
+const getTeamAnalytics = async ({ workspace }) => {
+  const version = await cacheService.taskVersion(workspace.id);
+  const key = `team-analytics:${workspace.id}:${version}`;
+  return cacheService.getOrSet(key, DASHBOARD_CACHE_TTL_SECONDS, () =>
+    computeTeamAnalytics({ workspace }),
+  );
 };
 
 export const dashboardService = { getDashboard, getTeamAnalytics };

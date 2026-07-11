@@ -58,6 +58,8 @@ export const env = Object.freeze({
 
   mongoUri: required('MONGODB_URI'),
 
+  redisUrl: optional('REDIS_URL', 'redis://127.0.0.1:6379'),
+
   jwt: {
     accessSecret: required('JWT_ACCESS_SECRET'),
     refreshSecret: required('JWT_REFRESH_SECRET'),
