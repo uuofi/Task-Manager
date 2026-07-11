@@ -70,12 +70,6 @@ export const env = Object.freeze({
 
   cookieSecret: optional('COOKIE_SECRET', 'insecure-dev-cookie-secret'),
 
-  rateLimit: {
-    windowMs: toInt(optional('RATE_LIMIT_WINDOW_MS', '900000'), 900000),
-    max: toInt(optional('RATE_LIMIT_MAX', '300'), 300),
-    authMax: toInt(optional('AUTH_RATE_LIMIT_MAX', '20'), 20),
-  },
-
   storage: {
     driver: optional('STORAGE_DRIVER', 'local'),
     uploadDir: optional('UPLOAD_DIR', 'uploads'),
@@ -88,6 +82,19 @@ export const env = Object.freeze({
     user: optional('SMTP_USER', ''),
     pass: optional('SMTP_PASS', ''),
     from: optional('SMTP_FROM', 'TaskControl <no-reply@taskcontrol.app>'),
+  },
+
+  // Telegram bot that receives messages submitted through the public contact form.
+  telegram: {
+    botToken: optional('TELEGRAM_BOT_TOKEN', ''),
+    chatId: optional('TELEGRAM_CHAT_ID', ''),
+  },
+
+  rateLimit: {
+    windowMs: toInt(optional('RATE_LIMIT_WINDOW_MS', '900000'), 900000),
+    max: toInt(optional('RATE_LIMIT_MAX', '300'), 300),
+    authMax: toInt(optional('AUTH_RATE_LIMIT_MAX', '20'), 20),
+    contactMax: toInt(optional('CONTACT_RATE_LIMIT_MAX', '5'), 5),
   },
 
   logLevel: optional('LOG_LEVEL', isProd ? 'info' : 'debug'),

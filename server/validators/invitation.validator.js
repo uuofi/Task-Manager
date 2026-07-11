@@ -8,10 +8,6 @@ export const inviteValidator = [
   body('projectId').optional({ values: 'null' }).isMongoId(),
 ];
 
-export const acceptInviteValidator = [
-  body('token').isString().notEmpty().withMessage('Invitation token is required'),
-];
-
 export const invitationIdValidator = [param('id').isMongoId()];
 
 export const respondInviteValidator = [

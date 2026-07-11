@@ -81,101 +81,6 @@ If you didn't request this, you can safely ignore this email.`;
   return sendEmail({ to: user.email, subject, html, text });
 };
 
-/** Sends a workspace invitation email. */
-export const sendInvitationEmail = async ({ to, inviterName, workspaceName, token }) => {
-  const subject = `${inviterName} invited you to join ${workspaceName} on TaskControl`;
-
-  const text = `${inviterName} has invited you to collaborate in the "${workspaceName}" workspace on TaskControl.
-
-To accept this invitation:
-1. Open the TaskControl app and sign in (or create a new account).
-2. Go to: Settings → Accept Invitation
-3. Paste your invitation code:
-
-${token}
-
-This invitation expires in 7 days.
-If you weren't expecting this, you can safely ignore this email.`;
-
-  const html = `
-    <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:auto;color:#1e293b;background:#ffffff;padding:36px 40px;border-radius:12px;border:1px solid #e2e8f0">
-
-      <h2 style="color:#5A3BFF;margin:0 0 6px 0;font-size:22px">You have been invited</h2>
-      <p style="margin:0 0 24px 0;color:#475569;font-size:15px;line-height:1.6">
-        <strong style="color:#0f172a">${inviterName}</strong> has invited you to collaborate
-        in the <strong style="color:#0f172a">${workspaceName}</strong> workspace on
-        <strong style="color:#0f172a">TaskControl</strong>.
-      </p>
-
-      <p style="margin:0 0 10px 0;color:#475569;font-size:14px;font-weight:600">
-        Your invitation code:
-      </p>
-      <div style="background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;padding:16px 20px;margin:0 0 20px 0;text-align:center">
-        <span style="font-family:Courier New,Courier,monospace;font-size:13px;color:#0f172a;word-break:break-all;letter-spacing:1px">${token}</span>
-      </div>
-
-      <p style="margin:0 0 8px 0;color:#475569;font-size:14px">To accept your invitation:</p>
-      <ol style="margin:0 0 24px 0;padding-left:20px;color:#475569;font-size:14px;line-height:2">
-        <li>Open the TaskControl app and sign in (or create an account).</li>
-        <li>Click <strong>Accept Invitation</strong> in the top menu.</li>
-        <li>Paste the code above and click <strong>Accept</strong>.</li>
-      </ol>
-
-      <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0" />
-      <p style="color:#94a3b8;font-size:12px;margin:0">
-        This invitation expires in 7 days.
-        If you weren't expecting this, you can safely ignore this email.
-      </p>
-    </div>`;
-
-  return sendEmail({ to, subject, html, text });
-};
-
-/**
- * Notifies an existing registered user by email that they've been invited to a
- * workspace. The accept/decline happens in-app (from their notifications), so
- * this email just points them there rather than carrying a token.
- */
-export const sendWorkspaceInviteNotificationEmail = async ({
-  to,
-  inviterName,
-  workspaceName,
-  role,
-}) => {
-  const subject = `${inviterName} invited you to join ${workspaceName} on TaskControl`;
-  const appUrl = `${env.clientUrl}/app/notifications`;
-
-  const text = `${inviterName} invited you to join the "${workspaceName}" workspace on TaskControl as ${role}.
-
-Open TaskControl and go to your Notifications to accept or decline:
-${appUrl}
-
-This invitation expires in 7 days. If you weren't expecting this, you can safely ignore this email.`;
-
-  const html = `
-    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;max-width:480px;margin:auto;color:#0D1321">
-      <h2 style="color:#5A3BFF">Workspace invitation</h2>
-      <p>
-        <strong>${inviterName}</strong> invited you to join the
-        <strong>${workspaceName}</strong> workspace on <strong>TaskControl</strong>
-        as <strong>${role}</strong>.
-      </p>
-      <p>Open TaskControl and head to your <strong>Notifications</strong> to accept or decline.</p>
-      <p style="margin:28px 0">
-        <a href="${appUrl}"
-           style="background:#2D7CFF;color:#fff;padding:12px 24px;border-radius:8px;
-                  text-decoration:none;font-weight:600;display:inline-block">
-          Open notifications
-        </a>
-      </p>
-      <p style="color:#64748b;font-size:13px">
-        This invitation expires in 7 days. If you weren't expecting this, you can safely ignore this email.
-      </p>
-    </div>`;
-
-  return sendEmail({ to, subject, html, text });
-};
-
 /** Sends a project membership invitation email to an existing workspace member. */
 export const sendProjectInvitationEmail = async ({
   to,
@@ -314,8 +219,6 @@ View task: ${taskUrl}`;
 export default {
   sendEmail,
   sendPasswordResetEmail,
-  sendInvitationEmail,
-  sendWorkspaceInviteNotificationEmail,
   sendProjectInvitationEmail,
   sendTaskCreatedEmail,
 };

@@ -21,8 +21,6 @@ const invitationSchema = new Schema(
 
     invitedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 
-    // Only the hash of the invite token is stored.
-    tokenHash: { type: String, required: true, index: true },
     expiresAt: { type: Date, required: true },
 
     status: {

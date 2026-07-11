@@ -3,7 +3,7 @@ import { Worker } from 'bullmq';
 import { logger } from '../config/logger.js';
 import { SOCKET_EVENTS } from '../constants/index.js';
 import { notificationRepository } from '../repositories/notification.repository.js';
-import { sendProjectInvitationEmail, sendWorkspaceInviteNotificationEmail } from '../services/email.service.js';
+import { sendProjectInvitationEmail } from '../services/email.service.js';
 import { realtime } from '../sockets/emitter.js';
 
 import { createQueueConnection } from './connection.js';
@@ -17,9 +17,6 @@ import { createQueueConnection } from './connection.js';
 const invitationWorker = new Worker(
   'invitations',
   async (job) => {
-    if (job.name === 'workspace-invite-email') {
-      return sendWorkspaceInviteNotificationEmail(job.data);
-    }
     if (job.name === 'project-invite-email') {
       return sendProjectInvitationEmail(job.data);
     }

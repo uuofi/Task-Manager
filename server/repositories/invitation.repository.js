@@ -14,10 +14,6 @@ export const invitationRepository = {
     return Invitation.findOne({ workspace, email, status: INVITATION_STATUS.PENDING });
   },
 
-  findPendingByTokenHash(tokenHash) {
-    return Invitation.findOne({ tokenHash, status: INVITATION_STATUS.PENDING });
-  },
-
   listPending(workspace) {
     return Invitation.find({ workspace, status: INVITATION_STATUS.PENDING })
       .sort('-createdAt')

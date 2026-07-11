@@ -32,4 +32,13 @@ export const authLimiter = rateLimit({
   handler,
 });
 
+/** Limiter for the public contact form to deter spam/abuse. */
+export const contactLimiter = rateLimit({
+  windowMs: env.rateLimit.windowMs,
+  max: env.rateLimit.contactMax,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler,
+});
+
 export default apiLimiter;

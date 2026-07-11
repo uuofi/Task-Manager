@@ -6,12 +6,10 @@ import {
   ROLES,
   SOCKET_EVENTS,
 } from '../constants/index.js';
-import { invitationQueue } from '../queues/index.js';
 import { invitationRepository } from '../repositories/invitation.repository.js';
 import { userRepository } from '../repositories/user.repository.js';
 import { realtime } from '../sockets/emitter.js';
 import { ApiError } from '../utils/ApiError.js';
-import { generateSecureToken } from '../utils/crypto.js';
 
 import { notificationService } from './notification.service.js';
 
@@ -39,18 +37,16 @@ const invite = async ({ workspace, inviter, role, email, inviteRole }) => {
     throw ApiError.conflict('An invitation is already pending for this user');
   }
 
-  const { hash } = generateSecureToken();
   const finalRole = inviteRole || ROLES.MEMBER;
   const invitation = await invitationRepository.create({
     workspace: workspace.id,
     email: normalized,
     role: finalRole,
     invitedBy: inviter.id,
-    tokenHash: hash,
     expiresAt: new Date(Date.now() + INVITE_TTL_DAYS * 24 * 60 * 60 * 1000),
   });
 
-  // In-app notification (primary channel — accept/decline happens in-app).
+  // In-app only — accept/decline happens entirely in the notification UI.
   await notificationService.notify({
     recipient: invitee._id,
     workspace: workspace.id,
@@ -61,14 +57,6 @@ const invite = async ({ workspace, inviter, role, email, inviteRole }) => {
     link: '',
     entityType: ENTITY_TYPE.INVITATION,
     entityId: invitation._id,
-  });
-
-  // Email notification (queued — retried automatically, never blocks the invite).
-  await invitationQueue.add('workspace-invite-email', {
-    to: normalized,
-    inviterName: inviter.name,
-    workspaceName: workspace.name,
-    role: finalRole,
   });
 
   return invitation;
@@ -150,49 +138,6 @@ const respond = async ({ invitationId, user, action }) => {
   return { declined: true };
 };
 
-/** Accepts an invitation via token (kept for backwards-compat / direct link flows). */
-const accept = async ({ token, user }) => {
-  const { hashToken } = await import('../utils/crypto.js');
-  const invitation = await invitationRepository.findPendingByTokenHash(hashToken(token));
-  if (!invitation) throw ApiError.badRequest('Invitation is invalid or has already been used');
-  if (invitation.expiresAt.getTime() < Date.now()) {
-    invitation.status = INVITATION_STATUS.EXPIRED;
-    await invitation.save();
-    throw ApiError.badRequest('This invitation has expired');
-  }
-  if (invitation.email !== user.email.toLowerCase()) {
-    throw ApiError.forbidden('This invitation was issued to a different email address');
-  }
-
-  const { Workspace } = await import('../models/Workspace.js');
-  const workspace = await Workspace.findById(invitation.workspace);
-  if (!workspace) throw ApiError.notFound('Workspace no longer exists');
-
-  if (!workspace.hasMember(user.id)) {
-    workspace.members.push({ user: user.id, role: invitation.role });
-    await workspace.save();
-  }
-
-  invitation.status = INVITATION_STATUS.ACCEPTED;
-  invitation.acceptedAt = new Date();
-  invitation.acceptedBy = user.id;
-  await invitation.save();
-
-  await notificationService.notify({
-    recipient: invitation.invitedBy,
-    workspace: workspace.id,
-    type: NOTIFICATION_TYPE.WORKSPACE_INVITATION,
-    actor: user.id,
-    title: 'Invitation accepted',
-    body: `${user.name} joined ${workspace.name}`,
-    link: '/app/team',
-    entityType: ENTITY_TYPE.WORKSPACE,
-    entityId: workspace._id,
-  });
-
-  return { workspace: workspace.toJSON() };
-};
-
 const revoke = async ({ workspace, role, invitationId }) => {
   assertMinRole(role, ROLES.MANAGER);
   const invitation = await invitationRepository.findById(invitationId);
@@ -203,6 +148,6 @@ const revoke = async ({ workspace, role, invitationId }) => {
   return { id: invitationId };
 };
 
-export const invitationService = { invite, list, respond, accept, revoke };
+export const invitationService = { invite, list, respond, revoke };
 
 export default invitationService;

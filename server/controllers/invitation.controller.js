@@ -19,11 +19,6 @@ export const listInvitations = asyncHandler(async (req, res) => {
   return ApiResponse.ok(res, invitations, 'Invitations loaded');
 });
 
-export const acceptInvitation = asyncHandler(async (req, res) => {
-  const result = await invitationService.accept({ token: req.body.token, user: req.user });
-  return ApiResponse.ok(res, result, 'Invitation accepted');
-});
-
 export const revokeInvitation = asyncHandler(async (req, res) => {
   const result = await invitationService.revoke({
     workspace: req.workspace,
