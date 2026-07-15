@@ -48,6 +48,10 @@ export const notificationRepository = {
   remove(id, recipient) {
     return Notification.findOneAndDelete({ _id: id, recipient });
   },
+
+  removeByEntity({ recipient, entityType, entityId }) {
+    return Notification.deleteMany({ recipient, entityType, entityId });
+  },
 };
 
 export default notificationRepository;

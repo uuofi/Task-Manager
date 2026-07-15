@@ -69,5 +69,11 @@ router.delete(
   loadProject(),
   projectController.removeProjectMember,
 );
+router.post(
+  '/:projectId/leave',
+  validate(projectIdValidator),
+  loadProject(),
+  projectController.leaveProject,
+);
 
 export default router;

@@ -59,6 +59,13 @@ export const workspacesApi = {
     const { data } = await axiosClient.patch(`/workspaces/current/members/${userId}/role`, { role });
     return data.data;
   },
+  async updateMemberPermissions(userId, permissions) {
+    const { data } = await axiosClient.patch(
+      `/workspaces/current/members/${userId}/permissions`,
+      permissions,
+    );
+    return data.data;
+  },
   async removeMember(userId) {
     const { data } = await axiosClient.delete(`/workspaces/current/members/${userId}`);
     return data.data;

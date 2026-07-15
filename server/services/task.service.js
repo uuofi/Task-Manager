@@ -2,10 +2,9 @@ import { logger } from '../config/logger.js';
 import {
   ACTIVITY_ACTION,
   ENTITY_TYPE,
+  MEMBER_PERMISSIONS,
   NOTIFICATION_TYPE,
   RECURRENCE,
-  ROLE_RANK,
-  ROLES,
   SOCKET_EVENTS,
   TASK_STATUS,
 } from '../constants/index.js';
@@ -23,8 +22,11 @@ const LIST_CACHE_TTL_SECONDS = 30;
 
 const taskLink = (taskId) => `/app/tasks/${taskId}`;
 
-const assertMinRole = (role, minRole) => {
-  if ((ROLE_RANK[role] ?? 0) < ROLE_RANK[minRole]) {
+const isTaskReporter = (task, user) => String(task.reporter) === String(user.id);
+const isTaskAssignee = (task, user) => !!task.assignee && String(task.assignee) === String(user.id);
+
+const assertPermission = (workspace, user, key) => {
+  if (!workspace.hasPermission(user.id, key)) {
     throw ApiError.forbidden('You do not have permission to perform this action');
   }
 };
@@ -50,7 +52,8 @@ const computeNextDue = (from, recurrence) => {
   return date;
 };
 
-const create = async ({ workspace, project, user, data }) => {
+/** Shared by `create()` and the recurrence auto-spawn — no permission checks here. */
+const createTaskDoc = async ({ workspace, project, user, data }) => {
   const counter = await projectRepository.nextTaskNumber(project.id);
   const number = counter.taskCounter;
   const key = `${counter.key}-${number}`;
@@ -134,6 +137,12 @@ const create = async ({ workspace, project, user, data }) => {
   return populated;
 };
 
+const create = async ({ workspace, project, user, data }) => {
+  assertPermission(workspace, user, MEMBER_PERMISSIONS.CAN_CREATE_TASKS);
+  if (data.assignee) assertPermission(workspace, user, MEMBER_PERMISSIONS.CAN_ASSIGN_TASKS);
+  return createTaskDoc({ workspace, project, user, data });
+};
+
 const getById = (taskId) => taskRepository.findByIdPopulated(taskId);
 
 /** Cached, versioned by workspace — writes bump the version so stale lists never serve. */
@@ -152,6 +161,14 @@ const board = (projectId) => taskRepository.board(projectId);
  * assignment / completion / recurrence side-effects.
  */
 const update = async ({ task, project, workspace, user, data }) => {
+  if (data.assignee !== undefined) {
+    assertPermission(workspace, user, MEMBER_PERMISSIONS.CAN_ASSIGN_TASKS);
+  }
+  const editsOtherFields = Object.keys(data).some((k) => k !== 'assignee');
+  if (editsOtherFields && !isTaskReporter(task, user) && !isTaskAssignee(task, user)) {
+    assertPermission(workspace, user, MEMBER_PERMISSIONS.CAN_EDIT_DELETE_TASKS);
+  }
+
   const changes = [];
   const track = (field, next) => {
     const prev = task[field];
@@ -255,7 +272,7 @@ const maybeSpawnRecurrence = async ({ task, project, workspace, user }) => {
   const nextDue = computeNextDue(task.dueDate || new Date(), rec);
   if (rec.until && nextDue && nextDue > rec.until) return;
 
-  await create({
+  await createTaskDoc({
     workspace,
     project,
     user,
@@ -274,7 +291,11 @@ const maybeSpawnRecurrence = async ({ task, project, workspace, user }) => {
 };
 
 /** Board drag-and-drop: change column and/or position. */
-const move = async ({ task, project, user, status, order }) => {
+const move = async ({ task, project, workspace, user, status, order }) => {
+  if (!isTaskReporter(task, user) && !isTaskAssignee(task, user)) {
+    assertPermission(workspace, user, MEMBER_PERMISSIONS.CAN_EDIT_DELETE_TASKS);
+  }
+
   const from = task.status;
   if (status !== undefined) task.status = status;
   if (order !== undefined) task.order = order;
@@ -349,9 +370,10 @@ const removeDependency = async ({ task, dependsOnId }) => {
   return taskRepository.findByIdPopulated(task.id);
 };
 
-const remove = async ({ task, project, user, role }) => {
-  const isReporter = String(task.reporter) === String(user.id);
-  if (!isReporter) assertMinRole(role, ROLES.MANAGER);
+const remove = async ({ task, project, workspace, user }) => {
+  if (!isTaskReporter(task, user)) {
+    assertPermission(workspace, user, MEMBER_PERMISSIONS.CAN_EDIT_DELETE_TASKS);
+  }
 
   const { Comment } = await import('../models/Comment.js');
   const { TimeEntry } = await import('../models/TimeEntry.js');

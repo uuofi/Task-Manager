@@ -6,6 +6,7 @@ import { loadWorkspace } from '../middleware/authorize.js';
 import { validate } from '../middleware/validate.js';
 import {
   memberIdParamValidator,
+  updateMemberPermissionsValidator,
   updateMemberRoleValidator,
   updateWorkspaceValidator,
 } from '../validators/workspace.validator.js';
@@ -31,6 +32,12 @@ router.patch(
   loadWorkspace,
   validate(updateMemberRoleValidator),
   workspaceController.updateMemberRole,
+);
+router.patch(
+  '/current/members/:userId/permissions',
+  loadWorkspace,
+  validate(updateMemberPermissionsValidator),
+  workspaceController.updateMemberPermissions,
 );
 router.delete(
   '/current/members/:userId',

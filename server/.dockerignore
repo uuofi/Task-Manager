@@ -1,0 +1,23 @@
+node_modules
+npm-debug.log
+
+# Secrets must come from the compose env_file / runtime env, never the image.
+.env
+.env.*
+!.env.example
+
+# Runtime state — must live in volumes, not baked into the image.
+logs
+uploads/*
+!uploads/.gitkeep
+
+.git
+.gitignore
+.vscode
+.idea
+coverage
+Dockerfile
+.dockerignore
+eslint.config.js
+nodemon.json
+.prettierrc.json

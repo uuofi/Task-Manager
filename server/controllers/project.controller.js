@@ -72,7 +72,6 @@ export const addProjectMember = asyncHandler(async (req, res) => {
     project: req.project,
     workspace: req.workspace,
     user: req.user,
-    role: req.membershipRole,
     targetUserId: req.body.userId,
     memberRole: req.body.role,
   });
@@ -90,8 +89,14 @@ export const acceptProjectInvitation = asyncHandler(async (req, res) => {
 export const removeProjectMember = asyncHandler(async (req, res) => {
   const project = await projectService.removeMember({
     project: req.project,
-    role: req.membershipRole,
+    workspace: req.workspace,
+    user: req.user,
     targetUserId: req.params.userId,
   });
   return ApiResponse.ok(res, project, 'Member removed');
+});
+
+export const leaveProject = asyncHandler(async (req, res) => {
+  const result = await projectService.leaveProject({ project: req.project, user: req.user });
+  return ApiResponse.ok(res, result, 'You left the project');
 });

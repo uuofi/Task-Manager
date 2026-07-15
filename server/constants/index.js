@@ -24,6 +24,29 @@ export const ROLE_RANK = Object.freeze({
   [ROLES.OWNER]: 4,
 });
 
+/**
+ * Fine-grained capabilities that can be granted to a `member`-rank workspace
+ * member individually, on top of their base role. Manager+ ranks always have
+ * every one of these implicitly (see Workspace#hasPermission) — the flags
+ * only matter for plain members.
+ */
+export const MEMBER_PERMISSIONS = Object.freeze({
+  CAN_CREATE_TASKS: 'canCreateTasks',
+  CAN_ASSIGN_TASKS: 'canAssignTasks',
+  CAN_EDIT_DELETE_TASKS: 'canEditDeleteTasks',
+  CAN_MANAGE_PROJECT_MEMBERS: 'canManageProjectMembers',
+});
+
+export const MEMBER_PERMISSION_VALUES = Object.freeze(Object.values(MEMBER_PERMISSIONS));
+
+/** Defaults applied to a new member when no explicit permissions are given. */
+export const DEFAULT_MEMBER_PERMISSIONS = Object.freeze({
+  [MEMBER_PERMISSIONS.CAN_CREATE_TASKS]: true,
+  [MEMBER_PERMISSIONS.CAN_ASSIGN_TASKS]: true,
+  [MEMBER_PERMISSIONS.CAN_EDIT_DELETE_TASKS]: false,
+  [MEMBER_PERMISSIONS.CAN_MANAGE_PROJECT_MEMBERS]: false,
+});
+
 /** Task lifecycle states. */
 export const TASK_STATUS = Object.freeze({
   BACKLOG: 'backlog',
@@ -163,6 +186,8 @@ export const SOCKET_EVENTS = Object.freeze({
   // workspace membership
   WORKSPACE_MEMBER_JOINED: 'workspace:member_joined',
   WORKSPACE_JOINED: 'workspace:joined',
+  // project membership
+  PROJECT_MEMBER_ADDED: 'project:member_added',
   // tasks
   TASK_CREATED: 'task:created',
   TASK_UPDATED: 'task:updated',

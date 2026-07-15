@@ -10,6 +10,7 @@ export const createInvitation = asyncHandler(async (req, res) => {
     email: req.body.email,
     inviteRole: req.body.role,
     projectId: req.body.projectId,
+    permissions: req.body.permissions,
   });
   return ApiResponse.created(res, invitation, 'Invitation sent');
 });

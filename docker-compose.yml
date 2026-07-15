@@ -1,0 +1,131 @@
+# TaskControl — production stack.
+#
+# Images are built and pushed by .github/workflows/deploy.yml; this file only
+# pulls them, so no build context is needed on the server.
+# For local development use docker-compose.dev.yml instead.
+#
+#   docker compose pull && docker compose up -d
+#
+name: taskcontrol
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  # ---------------------------------------------------------------- edge proxy
+  # The ONLY service published to the host. TLS + routing.
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # HTTP/3
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?set SITE_ADDRESS in .env}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data # issued certificates — losing this re-requests certs
+      - caddy_config:/config
+    depends_on:
+      - client
+      - server
+    networks: [edge]
+    logging: *default-logging
+
+  # -------------------------------------------------------------------- client
+  client:
+    image: ${GHCR_REPO:?set GHCR_REPO in .env}-client:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    networks: [edge]
+    logging: *default-logging
+
+  # -------------------------------------------------------------------- server
+  server:
+    image: ${GHCR_REPO:?set GHCR_REPO in .env}-server:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      NODE_ENV: production
+      PORT: 5050
+      API_PREFIX: /api/v1
+      # Built from the compose secrets so the URIs are never duplicated in .env.
+      # `environment` overrides env_file, so these always win.
+      MONGODB_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongo:27017/${MONGO_DB:-taskcontrol}?authSource=admin
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+    volumes:
+      - uploads:/app/uploads # user attachments — STORAGE_DRIVER=local writes here
+      - logs:/app/logs
+    depends_on:
+      mongo: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [edge, internal]
+    logging: *default-logging
+
+  # ------------------------------------------------------------------ database
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:?set MONGO_ROOT_USER in .env}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?set MONGO_ROOT_PASSWORD in .env}
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    # No host port: only reachable from the `internal` network.
+    networks: [internal]
+    logging: *default-logging
+
+  # --------------------------------------------------------- cache + job queue
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # BullMQ requires `noeviction`: with any eviction policy Redis may drop job
+    # keys under memory pressure and silently lose queued emails/notifications.
+    command:
+      [
+        "redis-server",
+        "--requirepass",
+        "${REDIS_PASSWORD:?set REDIS_PASSWORD in .env}",
+        "--appendonly",
+        "yes",
+        "--maxmemory-policy",
+        "noeviction",
+      ]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    networks: [internal]
+    logging: *default-logging
+
+networks:
+  # Public-facing path: caddy -> client/server.
+  edge:
+  # Data path: server -> mongo/redis. `internal: true` means no route out to the
+  # internet, so the databases cannot be reached from outside the host.
+  internal:
+    internal: true
+
+volumes:
+  mongo_data:
+  redis_data:
+  uploads:
+  logs:
+  caddy_data:
+  caddy_config:

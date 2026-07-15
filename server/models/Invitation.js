@@ -18,6 +18,13 @@ const invitationSchema = new Schema(
 
     email: { type: String, required: true, lowercase: true, trim: true, index: true },
     role: { type: String, enum: ROLE_VALUES, default: ROLES.MEMBER },
+    // Only meaningful when role is 'member' — see Workspace#hasPermission.
+    permissions: {
+      canCreateTasks: { type: Boolean, default: true },
+      canAssignTasks: { type: Boolean, default: true },
+      canEditDeleteTasks: { type: Boolean, default: false },
+      canManageProjectMembers: { type: Boolean, default: false },
+    },
 
     invitedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 

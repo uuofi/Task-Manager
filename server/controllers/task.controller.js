@@ -62,6 +62,7 @@ export const moveTask = asyncHandler(async (req, res) => {
   const task = await taskService.move({
     task: req.task,
     project: req.project,
+    workspace: req.workspace,
     user: req.user,
     status: req.body.status,
     order: req.body.order,
@@ -73,8 +74,8 @@ export const deleteTask = asyncHandler(async (req, res) => {
   const result = await taskService.remove({
     task: req.task,
     project: req.project,
+    workspace: req.workspace,
     user: req.user,
-    role: req.membershipRole,
   });
   return ApiResponse.ok(res, result, 'Task deleted');
 });

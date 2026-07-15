@@ -37,6 +37,10 @@ export const projectsApi = {
     const { data } = await axiosClient.delete(`/projects/${id}/members/${userId}`);
     return data.data;
   },
+  async leave(id) {
+    const { data } = await axiosClient.post(`/projects/${id}/leave`);
+    return data.data;
+  },
 };
 
 export default projectsApi;

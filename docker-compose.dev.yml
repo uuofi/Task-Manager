@@ -1,0 +1,86 @@
+# TaskControl — local development stack (hot reload, no TLS, no Caddy).
+#
+#   docker compose -f docker-compose.dev.yml up --build
+#
+# Client: http://localhost:3000   API: http://localhost:5050/api/v1/health
+# Vite proxies /api, /uploads and /socket.io to the server (see vite.config.js),
+# which is why the client is reached directly instead of through a proxy here.
+name: taskcontrol-dev
+
+services:
+  client:
+    build:
+      context: ./client
+      target: dev
+    environment:
+      # Inside this container `localhost` is the client itself, so the vite proxy
+      # has to target the compose service name instead.
+      DEV_PROXY_TARGET: http://server:5050
+      # Bind mounts do not forward filesystem events into the container, so the
+      # watcher has to poll or hot reload silently stops working.
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app
+      # Keeps the image's node_modules — the host's (Windows-built, possibly
+      # absent) copy must not shadow the Linux binaries installed in the image.
+      - /app/node_modules
+    depends_on: [server]
+
+  server:
+    build:
+      context: ./server
+      target: dev
+    environment:
+      NODE_ENV: development
+      PORT: 5050
+      API_PREFIX: /api/v1
+      MONGODB_URI: mongodb://mongo:27017/taskcontrol
+      REDIS_URL: redis://redis:6379
+      CLIENT_URL: http://localhost:3000
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173
+      # Dev-only placeholders: config/env.js throws on startup without them.
+      JWT_ACCESS_SECRET: dev_access_secret_not_for_production
+      JWT_REFRESH_SECRET: dev_refresh_secret_not_for_production
+      COOKIE_SECRET: dev_cookie_secret_not_for_production
+      LOG_LEVEL: debug
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    depends_on:
+      mongo: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  mongo:
+    image: mongo:7
+    # No auth in dev, matching the plain MONGODB_URI above.
+    ports:
+      - "27017:27017" # exposed so you can attach Compass / mongosh
+    volumes:
+      - mongo_dev_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mongo_dev_data:
+  redis_dev_data:

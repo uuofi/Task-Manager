@@ -1,4 +1,4 @@
-import { ROLE_RANK, ROLES } from '../constants/index.js';
+import { MEMBER_PERMISSION_VALUES, ROLE_RANK, ROLES } from '../constants/index.js';
 import { Workspace } from '../models/Workspace.js';
 import { taskRepository } from '../repositories/task.repository.js';
 import { workspaceRepository } from '../repositories/workspace.repository.js';
@@ -34,6 +34,7 @@ const listMembers = async (workspace) => {
     return {
       user: u,
       role: m.role,
+      permissions: m.permissions,
       joinedAt: m.joinedAt,
       stats: {
         totalTasks: stat.total,
@@ -55,6 +56,22 @@ const updateMemberRole = async ({ workspace, actorRole, targetUserId, newRole })
   if (newRole === ROLES.OWNER) throw ApiError.badRequest('Cannot assign the owner role');
 
   member.role = newRole;
+  await workspace.save();
+  return getCurrent(workspace.id);
+};
+
+/** Fine-grained capability toggles — only meaningful for plain `member`-rank users. */
+const updateMemberPermissions = async ({ workspace, actorRole, targetUserId, permissions }) => {
+  assertMinRole(actorRole, ROLES.ADMIN);
+  const member = workspace.members.find((m) => String(m.user) === String(targetUserId));
+  if (!member) throw ApiError.notFound('Member not found');
+  if (member.role !== ROLES.MEMBER) {
+    throw ApiError.badRequest('Only plain members have configurable permissions — managers and above already have full access');
+  }
+
+  for (const key of MEMBER_PERMISSION_VALUES) {
+    if (typeof permissions?.[key] === 'boolean') member.permissions[key] = permissions[key];
+  }
   await workspace.save();
   return getCurrent(workspace.id);
 };
@@ -85,6 +102,7 @@ export const workspaceService = {
   update,
   listMembers,
   updateMemberRole,
+  updateMemberPermissions,
   removeMember,
   leave,
   listForUser,

@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import {
   BarChart3,
   CalendarDays,
@@ -11,10 +12,11 @@ import {
   X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 import { Logo } from '@/components/common/Logo';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/utils';
 
@@ -54,9 +56,21 @@ function NavItem({ item, label, onNavigate }) {
 
 export function Sidebar({ mobileOpen, onClose }) {
   const { t } = useTranslation();
+  const qc = useQueryClient();
+  const navigate = useNavigate();
   const workspaces = useAuthStore((s) => s.workspaces);
   const activeWorkspaceId = useAuthStore((s) => s.activeWorkspaceId);
   const workspace = workspaces.find((w) => w.id === activeWorkspaceId) || workspaces[0];
+
+  const switchWorkspace = (workspaceId) => {
+    if (workspaceId === activeWorkspaceId) return;
+    useAuthStore.getState().setActiveWorkspace(workspaceId);
+    // Every workspace-scoped query (projects, members, tasks…) is keyed off
+    // the active workspace via the x-workspace-id header — refetch it all.
+    qc.invalidateQueries();
+    navigate('/app');
+    onClose?.();
+  };
 
   const content = (
     <div className="bg-sidebar flex h-full flex-col border-e">
@@ -72,7 +86,22 @@ export function Sidebar({ mobileOpen, onClose }) {
           <p className="text-muted-foreground text-[11px] font-medium uppercase tracking-wide">
             {t('nav.workspace')}
           </p>
-          <p className="truncate text-sm font-semibold">{workspace.name}</p>
+          {workspaces.length > 1 ? (
+            <Select value={activeWorkspaceId} onValueChange={switchWorkspace}>
+              <SelectTrigger className="mt-0.5 h-auto w-full border-none bg-transparent p-0 text-sm font-semibold shadow-none focus-visible:ring-0 [&_svg]:opacity-70">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {workspaces.map((w) => (
+                  <SelectItem key={w.id} value={w.id}>
+                    {w.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <p className="truncate text-sm font-semibold">{workspace.name}</p>
+          )}
         </div>
       )}
 

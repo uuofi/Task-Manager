@@ -7,12 +7,14 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { ArrowLeft, Plus, Search, Users, X } from 'lucide-react';
+import { ArrowLeft, LogOut, Plus, Search, Users, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
+import { getErrorMessage } from '@/api/axiosClient';
 import { BoardColumn } from '@/components/board/BoardColumn';
 import { CreateTaskDialog } from '@/components/board/CreateTaskDialog';
 import { TaskCard } from '@/components/board/TaskCard';
@@ -37,9 +39,9 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 import { useSocket } from '@/contexts/SocketContext';
-import { useProject, useProjectMemberMutations } from '@/hooks/useProjects';
+import { useLeaveProject, useProject, useProjectMemberMutations } from '@/hooks/useProjects';
 import { useBoard, useTaskMutations } from '@/hooks/useTasks';
-import { workspacesApi } from '@/api/misc.api';
+import { invitationsApi, workspacesApi } from '@/api/misc.api';
 import { BOARD_COLUMNS, PRIORITY_ORDER, PRIORITY } from '@/lib/taskMeta';
 import { useAuthStore } from '@/store/authStore';
 
@@ -55,12 +57,26 @@ const groupByStatus = (tasks = []) => {
 
 function ManageMembersDialog({ open, onOpenChange, project, projectId }) {
   const me = useAuthStore((s) => s.user);
+  const qc = useQueryClient();
+  const navigate = useNavigate();
   const { addMember, removeMember } = useProjectMemberMutations(projectId);
+  const leaveProject = useLeaveProject(projectId);
+  const [inviteEmail, setInviteEmail] = useState('');
 
   const { data: workspaceMembers = [] } = useQuery({
     queryKey: ['workspace', 'members'],
     queryFn: workspacesApi.members,
     enabled: open,
+  });
+
+  const invite = useMutation({
+    mutationFn: () => invitationsApi.create({ email: inviteEmail, role: 'member', projectId }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['invitations'] });
+      toast.success("Invitation sent — they'll join this project once they accept");
+      setInviteEmail('');
+    },
+    onError: (e) => toast.error(getErrorMessage(e)),
   });
 
   const projectMemberIds = useMemo(
@@ -73,8 +89,25 @@ function ManageMembersDialog({ open, onOpenChange, project, projectId }) {
     [workspaceMembers, projectMemberIds],
   );
 
-  const myRole = project?.members?.find((m) => (m.user?.id || String(m.user)) === me?.id)?.role;
-  const canManage = myRole === 'manager' || myRole === 'admin' || myRole === 'owner';
+  // Gate on the caller's *workspace* role, not their project role — the
+  // backend allows any workspace manager/admin/owner to manage membership on
+  // any project, even ones they aren't personally a member of.
+  const myWorkspaceRole = workspaceMembers.find((wm) => wm.user?.id === me?.id)?.role;
+  const canManage = myWorkspaceRole === 'manager' || myWorkspaceRole === 'admin' || myWorkspaceRole === 'owner';
+
+  const isSelfLead = (project?.lead?.id || String(project?.lead)) === me?.id;
+  const isSelfMember = projectMemberIds.has(me?.id);
+
+  const handleLeave = () => {
+    if (window.confirm(`Leave "${project?.name}"? You can be added back later — your tasks and history stay intact.`)) {
+      leaveProject.mutate(undefined, {
+        onSuccess: () => {
+          onOpenChange(false);
+          navigate('/app/projects');
+        },
+      });
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -156,6 +189,55 @@ function ManageMembersDialog({ open, onOpenChange, project, projectId }) {
           <p className="text-muted-foreground border-t pt-3 text-sm">
             All workspace members are already in this project.
           </p>
+        )}
+
+        {/* Invite someone not yet in the workspace, scoped to just this project */}
+        {canManage && (
+          <div className="space-y-2 border-t pt-3">
+            <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
+              Invite by email
+            </p>
+            <form
+              className="flex gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (inviteEmail.trim()) invite.mutate();
+              }}
+            >
+              <Input
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                placeholder="teammate@company.com"
+                className="h-8 text-sm"
+              />
+              <Button
+                type="submit"
+                size="sm"
+                className="h-8 shrink-0 px-3 text-xs"
+                disabled={!inviteEmail.trim() || invite.isPending}
+              >
+                {invite.isPending ? <Spinner className="size-3" /> : 'Invite'}
+              </Button>
+            </form>
+            <p className="text-muted-foreground text-[11px]">
+              They must already have a TaskControl account. They'll be added to this project once they accept.
+            </p>
+          </div>
+        )}
+
+        {isSelfMember && !isSelfLead && (
+          <div className="border-t pt-3">
+            <Button
+              variant="outline"
+              className="text-destructive hover:text-destructive w-full"
+              onClick={handleLeave}
+              disabled={leaveProject.isPending}
+            >
+              {leaveProject.isPending ? <Spinner className="size-3" /> : <LogOut className="size-4" />}
+              Leave project
+            </Button>
+          </div>
         )}
       </DialogContent>
     </Dialog>

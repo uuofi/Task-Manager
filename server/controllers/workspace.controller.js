@@ -36,6 +36,16 @@ export const updateMemberRole = asyncHandler(async (req, res) => {
   return ApiResponse.ok(res, workspace, 'Member role updated');
 });
 
+export const updateMemberPermissions = asyncHandler(async (req, res) => {
+  const workspace = await workspaceService.updateMemberPermissions({
+    workspace: req.workspace,
+    actorRole: req.membershipRole,
+    targetUserId: req.params.userId,
+    permissions: req.body,
+  });
+  return ApiResponse.ok(res, workspace, 'Member permissions updated');
+});
+
 export const removeMember = asyncHandler(async (req, res) => {
   const result = await workspaceService.removeMember({
     workspace: req.workspace,

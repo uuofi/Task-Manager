@@ -67,7 +67,7 @@ export function NotificationBell() {
   };
 
   const onRespond = (n, action) => {
-    respond.mutate({ notificationId: n.id, invitationId: n.entityId, action });
+    respond.mutate({ invitationId: n.entityId, action });
   };
 
   return (

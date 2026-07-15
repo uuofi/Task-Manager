@@ -10,6 +10,10 @@ import { logger } from '../config/logger.js';
  */
 let transporter = null;
 
+// Kill switch — set to false to re-enable sending. All email senders in this
+// file funnel through sendEmail(), so this single flag disables everything.
+const EMAILS_DISABLED = true;
+
 const getTransporter = () => {
   logger.info(`[email] config — host="${env.smtp.host}" port=${env.smtp.port} user="${env.smtp.user}" from="${env.smtp.from}"`);
   if (!env.smtp.host || !env.smtp.user) {
@@ -34,6 +38,10 @@ const getTransporter = () => {
  * @param {{ to: string, subject: string, html: string, text?: string }} message
  */
 export const sendEmail = async ({ to, subject, html, text }) => {
+  if (EMAILS_DISABLED) {
+    logger.warn(`[email] Sending is disabled — email NOT sent. To: ${to} | Subject: ${subject}`);
+    return { delivered: false, preview: true };
+  }
   const tx = getTransporter();
   if (!tx) {
     logger.warn(`[email:dev] SMTP not configured — email NOT sent. To: ${to} | Subject: ${subject}`);

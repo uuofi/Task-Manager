@@ -70,6 +70,18 @@ export function useProjectMemberMutations(projectId) {
   return { addMember, removeMember };
 }
 
+export function useLeaveProject(projectId) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => projectsApi.leave(projectId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['projects'] });
+      toast.success('You left the project');
+    },
+    onError: (e) => toast.error(getErrorMessage(e)),
+  });
+}
+
 export function useProjectLifecycle() {
   const qc = useQueryClient();
   const invalidate = () => qc.invalidateQueries({ queryKey: ['projects'] });

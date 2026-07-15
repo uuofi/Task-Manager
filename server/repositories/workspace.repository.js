@@ -20,9 +20,11 @@ export const workspaceRepository = {
     return Workspace.exists({ slug });
   },
 
-  /** All workspaces the user belongs to. */
+  /** All workspaces the user belongs to, with member profiles populated. */
   findByMember(userId) {
-    return Workspace.find({ 'members.user': userId }).sort({ createdAt: 1 });
+    return Workspace.find({ 'members.user': userId })
+      .sort({ createdAt: 1 })
+      .populate('members.user', 'name avatar email');
   },
 
   updateById(id, update) {

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bell, LogOut, UserMinus, UserPlus, X } from 'lucide-react';
+import { Bell, LogOut, Settings2, UserMinus, UserPlus, Users, X } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -7,11 +7,13 @@ import { toast } from 'sonner';
 import { getErrorMessage } from '@/api/axiosClient';
 import { invitationsApi, workspacesApi } from '@/api/misc.api';
 import { projectsApi } from '@/api/projects.api';
+import { EmptyState } from '@/components/common/EmptyState';
 import { PageHeader } from '@/components/common/PageHeader';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +24,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
@@ -31,6 +34,22 @@ import { useAuthStore } from '@/store/authStore';
 
 const ADMIN_ROLES = new Set(['owner', 'admin']);
 const ASSIGNABLE_ROLES = ['member', 'manager', 'admin'];
+
+// Fine-grained capabilities configurable for plain 'member'-rank users only —
+// manager/admin/owner already have full access regardless of these flags.
+const PERMISSION_FIELDS = [
+  { key: 'canCreateTasks', label: 'Create tasks' },
+  { key: 'canAssignTasks', label: 'Assign tasks to others' },
+  { key: 'canEditDeleteTasks', label: 'Edit or delete tasks' },
+  { key: 'canManageProjectMembers', label: 'Manage project members' },
+];
+
+const DEFAULT_PERMISSIONS = {
+  canCreateTasks: true,
+  canAssignTasks: true,
+  canEditDeleteTasks: false,
+  canManageProjectMembers: false,
+};
 
 function PendingInviteRow({ inv, canManage }) {
   const qc = useQueryClient();
@@ -70,6 +89,7 @@ function InviteDialog() {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('member');
   const [projectId, setProjectId] = useState('none');
+  const [permissions, setPermissions] = useState(DEFAULT_PERMISSIONS);
 
   // Fetch projects only when the dialog is open
   const { data: projectsData } = useQuery({
@@ -85,6 +105,7 @@ function InviteDialog() {
         email,
         role,
         projectId: projectId !== 'none' ? projectId : undefined,
+        permissions: role === 'member' ? permissions : undefined,
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['invitations'] });
@@ -92,6 +113,7 @@ function InviteDialog() {
       setOpen(false);
       setEmail('');
       setProjectId('none');
+      setPermissions(DEFAULT_PERMISSIONS);
     },
     onError: (e) => toast.error(getErrorMessage(e)),
   });
@@ -152,6 +174,27 @@ function InviteDialog() {
               </SelectContent>
             </Select>
           </div>
+          {role === 'member' && (
+            <div className="space-y-2 rounded-lg border p-3">
+              <Label>Permissions</Label>
+              <p className="text-muted-foreground text-xs">
+                Fine-tune exactly what this member can do, on top of the base role.
+              </p>
+              <div className="space-y-2 pt-1">
+                {PERMISSION_FIELDS.map((f) => (
+                  <label key={f.key} className="flex items-center gap-2 text-sm">
+                    <Checkbox
+                      checked={permissions[f.key]}
+                      onCheckedChange={(checked) =>
+                        setPermissions((prev) => ({ ...prev, [f.key]: !!checked }))
+                      }
+                    />
+                    {f.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
@@ -164,8 +207,63 @@ function InviteDialog() {
   );
 }
 
+/** Lets an admin/owner fine-tune a plain member's capabilities after the fact. */
+function MemberPermissionsPopover({ member }) {
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [permissions, setPermissions] = useState(member.permissions ?? DEFAULT_PERMISSIONS);
+
+  const save = useMutation({
+    mutationFn: () => workspacesApi.updateMemberPermissions(member.user.id, permissions),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['workspace', 'members'] });
+      toast.success('Permissions updated');
+      setOpen(false);
+    },
+    onError: (e) => toast.error(getErrorMessage(e)),
+  });
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-muted-foreground size-8 shrink-0"
+          title="Edit permissions"
+        >
+          <Settings2 className="size-4" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="space-y-2">
+        <p className="text-sm font-semibold">Permissions</p>
+        <p className="text-muted-foreground text-xs">
+          What {member.user.name} can do, on top of the Member role.
+        </p>
+        <div className="space-y-2 pt-1">
+          {PERMISSION_FIELDS.map((f) => (
+            <label key={f.key} className="flex items-center gap-2 text-sm">
+              <Checkbox
+                checked={permissions[f.key]}
+                onCheckedChange={(checked) =>
+                  setPermissions((prev) => ({ ...prev, [f.key]: !!checked }))
+                }
+              />
+              {f.label}
+            </label>
+          ))}
+        </div>
+        <Button size="sm" className="w-full" onClick={() => save.mutate()} disabled={save.isPending}>
+          {save.isPending ? <Spinner className="size-3" /> : 'Save'}
+        </Button>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export function TeamPage() {
   const me = useAuthStore((s) => s.user);
+  const activeWorkspaceId = useAuthStore((s) => s.activeWorkspaceId);
   const qc = useQueryClient();
   const navigate = useNavigate();
   const { isUserOnline } = useSocket();
@@ -177,6 +275,13 @@ export function TeamPage() {
     queryKey: ['invitations'],
     queryFn: invitationsApi.list,
   });
+  const { data: myWorkspaces, isLoading: isLoadingWorkspaces } = useQuery({
+    queryKey: ['workspaces', 'mine'],
+    queryFn: workspacesApi.mine,
+  });
+
+  // Workspaces I've been added to as a member (i.e. not my own workspace).
+  const addedWorkspaces = (myWorkspaces ?? []).filter((w) => w.id !== activeWorkspaceId);
 
   // Derive the current user's workspace role
   const myRole = members?.find((m) => m.user?.id === me?.id)?.role;
@@ -237,6 +342,11 @@ export function TeamPage() {
         description="Manage who has access to this workspace."
         actions={headerActions}
       />
+
+      <div className="space-y-1">
+        <h2 className="text-sm font-semibold">My Team</h2>
+        <p className="text-muted-foreground text-xs">The workspace you own — manage members, roles, and invites.</p>
+      </div>
 
       {/* Pending invitations — only shown to admins */}
       {canManage && invites?.length > 0 && (
@@ -309,6 +419,7 @@ export function TeamPage() {
                       {m.role}
                     </Badge>
                   )}
+                  {canRemove && m.role === 'member' && <MemberPermissionsPopover member={m} />}
                   {canRemove && (
                     <Button
                       variant="ghost"
@@ -330,6 +441,54 @@ export function TeamPage() {
             })}
           </CardContent>
         </Card>
+      )}
+
+      <div className="space-y-1 pt-4">
+        <h2 className="text-sm font-semibold">Teams You've Been Added To</h2>
+        <p className="text-muted-foreground text-xs">Other workspaces you're a member of.</p>
+      </div>
+
+      {isLoadingWorkspaces ? (
+        <Skeleton className="h-32" />
+      ) : addedWorkspaces.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="No other teams yet"
+          description="Workspaces you're invited to and accept will show up here."
+        />
+      ) : (
+        addedWorkspaces.map((w) => {
+          const roleInWorkspace = w.members?.find((m) => m.user?.id === me?.id)?.role;
+          return (
+            <Card key={w.id}>
+              <div className="flex items-center justify-between border-b px-4 py-3">
+                <p className="text-sm font-semibold">{w.name}</p>
+                {roleInWorkspace && (
+                  <Badge variant="secondary" className="capitalize">
+                    {roleInWorkspace}
+                  </Badge>
+                )}
+              </div>
+              <CardContent className="divide-y p-0">
+                {w.members?.map((m) => (
+                  <div key={m.user.id} className="flex items-center gap-3 px-4 py-3">
+                    <UserAvatar user={m.user} className="size-9" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">
+                        {m.user.name}{' '}
+                        {m.user.id === me?.id && <span className="text-muted-foreground">(you)</span>}
+                      </p>
+                      <p className="text-muted-foreground truncate text-xs">{m.user.email}</p>
+                    </div>
+                    <Badge variant={m.role === 'owner' ? 'default' : 'secondary'} className="capitalize">
+                      {m.role}
+                    </Badge>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          );
+        })
       )}
     </div>
   );

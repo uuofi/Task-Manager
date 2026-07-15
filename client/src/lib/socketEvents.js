@@ -19,6 +19,7 @@ export const SOCKET_EVENTS = Object.freeze({
   ACTIVITY_NEW: 'activity:new',
   WORKSPACE_MEMBER_JOINED: 'workspace:member_joined',
   WORKSPACE_JOINED: 'workspace:joined',
+  PROJECT_MEMBER_ADDED: 'project:member_added',
 });
 
 export default SOCKET_EVENTS;

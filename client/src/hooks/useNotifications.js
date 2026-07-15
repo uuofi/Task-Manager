@@ -39,11 +39,7 @@ export function useNotificationActions() {
 export function useRespondToInvitation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ notificationId, invitationId, action }) =>
-      Promise.all([
-        invitationsApi.respond(invitationId, action),
-        notificationsApi.markRead(notificationId),
-      ]),
+    mutationFn: ({ invitationId, action }) => invitationsApi.respond(invitationId, action),
     onSuccess: async (_, { action }) => {
       qc.invalidateQueries({ queryKey: ['notifications'] });
       qc.invalidateQueries({ queryKey: ['workspace'] });

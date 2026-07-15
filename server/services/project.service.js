@@ -4,14 +4,17 @@ import {
   ACTIVITY_ACTION,
   ENTITY_TYPE,
   INVITATION_STATUS,
+  MEMBER_PERMISSIONS,
   PROJECT_STATUS,
   ROLE_RANK,
   ROLES,
+  SOCKET_EVENTS,
 } from '../constants/index.js';
 import { invitationQueue } from '../queues/index.js';
 import { projectRepository } from '../repositories/project.repository.js';
 import { projectInvitationRepository } from '../repositories/projectInvitation.repository.js';
 import { userRepository } from '../repositories/user.repository.js';
+import { realtime } from '../sockets/emitter.js';
 import { ApiError } from '../utils/ApiError.js';
 import { generateSecureToken, hashToken } from '../utils/crypto.js';
 import { slugify } from '../utils/slug.js';
@@ -158,8 +161,10 @@ const remove = async ({ project, role }) => {
 const INVITE_TTL_DAYS = 7;
 
 /** Directly adds an existing workspace member to the project — no email or token needed. */
-const addMember = async ({ project, workspace, user, role, targetUserId, memberRole }) => {
-  assertMinRole(role, ROLES.MANAGER);
+const addMember = async ({ project, workspace, user, targetUserId, memberRole }) => {
+  if (!workspace.hasPermission(user.id, MEMBER_PERMISSIONS.CAN_MANAGE_PROJECT_MEMBERS)) {
+    throw ApiError.forbidden('You do not have permission to perform this action');
+  }
 
   if (!workspace.hasMember(targetUserId)) {
     throw ApiError.badRequest('User must be a workspace member first');
@@ -179,6 +184,10 @@ const addMember = async ({ project, workspace, user, role, targetUserId, memberR
     entityType: ENTITY_TYPE.PROJECT,
     entityId: project.id,
     message: `added a member to project "${project.name}"`,
+  });
+
+  realtime.emitToUser(String(targetUserId), SOCKET_EVENTS.PROJECT_MEMBER_ADDED, {
+    projectId: project.id,
   });
 
   return projectRepository.findByIdPopulated(project.id);
@@ -277,14 +286,34 @@ const acceptProjectInvitation = async ({ token, user }) => {
   return projectRepository.findByIdPopulated(project.id);
 };
 
-const removeMember = async ({ project, role, targetUserId }) => {
-  assertMinRole(role, ROLES.MANAGER);
+const removeMember = async ({ project, workspace, user, targetUserId }) => {
+  if (!workspace.hasPermission(user.id, MEMBER_PERMISSIONS.CAN_MANAGE_PROJECT_MEMBERS)) {
+    throw ApiError.forbidden('You do not have permission to perform this action');
+  }
   if (String(project.lead) === String(targetUserId)) {
     throw ApiError.badRequest('Reassign the project lead before removing them');
   }
   project.members = project.members.filter((m) => String(m.user) !== String(targetUserId));
   await project.save();
   return projectRepository.findByIdPopulated(project.id);
+};
+
+/**
+ * Self-service leave — always allowed for a member of their own accord (no
+ * CAN_MANAGE_PROJECT_MEMBERS permission needed). Tasks, comments, and time
+ * entries the member created or is assigned to are untouched, so rejoining
+ * later shows everything exactly as it was.
+ */
+const leaveProject = async ({ project, user }) => {
+  if (String(project.lead) === String(user.id)) {
+    throw ApiError.badRequest('Reassign the project lead before leaving this project');
+  }
+  if (!project.getMemberRole(user.id)) {
+    throw ApiError.badRequest('You are not a member of this project');
+  }
+  project.members = project.members.filter((m) => String(m.user) !== String(user.id));
+  await project.save();
+  return { left: true };
 };
 
 export const projectService = {
@@ -298,6 +327,7 @@ export const projectService = {
   inviteMember,
   acceptProjectInvitation,
   removeMember,
+  leaveProject,
 };
 
 export default projectService;

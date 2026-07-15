@@ -69,6 +69,13 @@ export function SocketProvider({ children }) {
       });
     };
 
+    // Received by a user just added to a project (directly, or via an accepted
+    // invitation scoped to a project): refresh their projects list so it shows up.
+    const onProjectMemberAdded = () => {
+      qc.invalidateQueries({ queryKey: ['projects'] });
+      qc.invalidateQueries({ queryKey: qk.dashboard });
+    };
+
     socket.on(SOCKET_EVENTS.ONLINE_USERS, onOnlineList);
     socket.on(SOCKET_EVENTS.USER_ONLINE, onUserOnline);
     socket.on(SOCKET_EVENTS.USER_OFFLINE, onUserOffline);
@@ -81,6 +88,7 @@ export function SocketProvider({ children }) {
     socket.on(SOCKET_EVENTS.COMMENT_DELETED, onCommentEvent);
     socket.on(SOCKET_EVENTS.WORKSPACE_MEMBER_JOINED, onMemberJoined);
     socket.on(SOCKET_EVENTS.WORKSPACE_JOINED, onWorkspaceJoined);
+    socket.on(SOCKET_EVENTS.PROJECT_MEMBER_ADDED, onProjectMemberAdded);
 
     return () => {
       socket.off(SOCKET_EVENTS.ONLINE_USERS, onOnlineList);
@@ -95,6 +103,7 @@ export function SocketProvider({ children }) {
       socket.off(SOCKET_EVENTS.COMMENT_DELETED, onCommentEvent);
       socket.off(SOCKET_EVENTS.WORKSPACE_MEMBER_JOINED, onMemberJoined);
       socket.off(SOCKET_EVENTS.WORKSPACE_JOINED, onWorkspaceJoined);
+      socket.off(SOCKET_EVENTS.PROJECT_MEMBER_ADDED, onProjectMemberAdded);
       disconnectSocket();
       setSocket(null);
       setOnlineUsers(new Set());

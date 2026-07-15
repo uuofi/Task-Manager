@@ -1,12 +1,15 @@
 import {
+  DEFAULT_MEMBER_PERMISSIONS,
   ENTITY_TYPE,
   INVITATION_STATUS,
+  MEMBER_PERMISSION_VALUES,
   NOTIFICATION_TYPE,
   ROLE_RANK,
   ROLES,
   SOCKET_EVENTS,
 } from '../constants/index.js';
 import { invitationRepository } from '../repositories/invitation.repository.js';
+import { notificationRepository } from '../repositories/notification.repository.js';
 import { userRepository } from '../repositories/user.repository.js';
 import { realtime } from '../sockets/emitter.js';
 import { ApiError } from '../utils/ApiError.js';
@@ -21,7 +24,7 @@ const assertMinRole = (role, minRole) => {
   }
 };
 
-const invite = async ({ workspace, inviter, role, email, inviteRole }) => {
+const invite = async ({ workspace, inviter, role, email, inviteRole, projectId, permissions }) => {
   assertMinRole(role, ROLES.MANAGER);
   const normalized = email.toLowerCase();
 
@@ -37,11 +40,32 @@ const invite = async ({ workspace, inviter, role, email, inviteRole }) => {
     throw ApiError.conflict('An invitation is already pending for this user');
   }
 
+  let project = null;
+  if (projectId) {
+    const { Project } = await import('../models/Project.js');
+    project = await Project.findById(projectId);
+    if (!project || String(project.workspace) !== String(workspace.id)) {
+      throw ApiError.notFound('Project not found in this workspace');
+    }
+  }
+
   const finalRole = inviteRole || ROLES.MEMBER;
+
+  // Fine-grained permissions only matter for plain members — manager+ always
+  // has full access (see Workspace#hasPermission), so ignore overrides there.
+  const finalPermissions = { ...DEFAULT_MEMBER_PERMISSIONS };
+  if (finalRole === ROLES.MEMBER && permissions && typeof permissions === 'object') {
+    for (const key of MEMBER_PERMISSION_VALUES) {
+      if (typeof permissions[key] === 'boolean') finalPermissions[key] = permissions[key];
+    }
+  }
+
   const invitation = await invitationRepository.create({
     workspace: workspace.id,
+    project: project?.id ?? null,
     email: normalized,
     role: finalRole,
+    permissions: finalPermissions,
     invitedBy: inviter.id,
     expiresAt: new Date(Date.now() + INVITE_TTL_DAYS * 24 * 60 * 60 * 1000),
   });
@@ -85,7 +109,11 @@ const respond = async ({ invitationId, user, action }) => {
 
   if (action === 'accept') {
     if (!workspace.hasMember(user.id)) {
-      workspace.members.push({ user: user.id, role: invitation.role });
+      workspace.members.push({
+        user: user.id,
+        role: invitation.role,
+        permissions: invitation.permissions,
+      });
       await workspace.save();
     }
 
@@ -96,6 +124,9 @@ const respond = async ({ invitationId, user, action }) => {
       if (project && !project.getMemberRole(user.id)) {
         project.members.push({ user: user.id, role: invitation.role });
         await project.save();
+        realtime.emitToUser(String(user.id || user._id), SOCKET_EVENTS.PROJECT_MEMBER_ADDED, {
+          projectId: project.id,
+        });
       }
     }
 
@@ -103,6 +134,12 @@ const respond = async ({ invitationId, user, action }) => {
     invitation.acceptedAt = new Date();
     invitation.acceptedBy = user.id;
     await invitation.save();
+
+    await notificationRepository.removeByEntity({
+      recipient: user.id,
+      entityType: ENTITY_TYPE.INVITATION,
+      entityId: invitation._id,
+    });
 
     // Notify the inviter
     await notificationService.notify({
@@ -135,6 +172,13 @@ const respond = async ({ invitationId, user, action }) => {
   // action === 'decline'
   invitation.status = INVITATION_STATUS.DECLINED;
   await invitation.save();
+
+  await notificationRepository.removeByEntity({
+    recipient: user.id,
+    entityType: ENTITY_TYPE.INVITATION,
+    entityId: invitation._id,
+  });
+
   return { declined: true };
 };
 
