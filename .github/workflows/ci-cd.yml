@@ -25,6 +25,13 @@ env:
   # Referenced via the `deployable` output below.
   DEPLOYABLE: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
 
+  # Split-domain deploy: the SPA is served from taskat.site and calls the API on
+  # its own subdomain. Vite inlines VITE_* vars at BUILD time, so these are baked
+  # into the client image here (they are NOT runtime env). Change them in one
+  # place if the domains ever change.
+  VITE_API_URL: https://api.taskat.site/api/v1
+  VITE_SOCKET_URL: https://api.taskat.site
+
 jobs:
   # ===========================================================================
   # CI — runs on every pull request and every push.
@@ -124,6 +131,11 @@ jobs:
           context: ./${{ matrix.image }}
           target: runner
           push: ${{ env.DEPLOYABLE == 'true' }}
+          # Only the client bundle needs the API/socket origins baked in; the
+          # server ignores these. Empty lines for the server build are harmless.
+          build-args: |
+            ${{ matrix.image == 'client' && format('VITE_API_URL={0}', env.VITE_API_URL) || '' }}
+            ${{ matrix.image == 'client' && format('VITE_SOCKET_URL={0}', env.VITE_SOCKET_URL) || '' }}
           # The SHA tag is what the server actually deploys; `latest` is a
           # convenience pointer for manual pulls.
           tags: |
@@ -154,6 +166,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Without this, a missing secret surfaces as the SSH action's opaque
+      # "can't connect without a private SSH key or password".
+      - name: Check deploy secrets are present
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          missing=""
+          [ -n "$DEPLOY_HOST" ]    || missing="$missing DEPLOY_HOST"
+          [ -n "$DEPLOY_USER" ]    || missing="$missing DEPLOY_USER"
+          [ -n "$DEPLOY_SSH_KEY" ] || missing="$missing DEPLOY_SSH_KEY"
+
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secret(s):$missing — add them under Settings > Secrets and variables > Actions. If you added them as *Environment* secrets, this job must also declare that environment."
+            exit 1
+          fi
+
+          case "$DEPLOY_SSH_KEY" in
+            *"PRIVATE KEY"*) ;;
+            *) echo "::error::DEPLOY_SSH_KEY does not look like a private key. Paste the contents of the key file itself (including the BEGIN/END lines), not the .pub file."
+               exit 1 ;;
+          esac
+
+          echo "Deploy secrets present."
+
       # Only the compose config travels; /opt/taskcontrol/.env lives on the
       # server and is deliberately never overwritten from CI.
       - name: Copy compose files to server
@@ -163,7 +201,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.DEPLOY_PORT || 22 }}
-          source: "docker-compose.yml,Caddyfile"
+          source: "docker-compose.yml"
           target: /opt/taskcontrol
 
       - name: Pull images and restart stack

@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { resolveAssetUrl } from '@/lib/config';
 import { initials } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -11,7 +12,9 @@ export function UserAvatar({ user, className }) {
       </Avatar>
     );
   }
-  const src = user.avatar?.startsWith('/uploads/') ? user.avatar : user.avatar || undefined;
+  // Uploaded avatars come back as "/uploads/.." — resolve them against the API
+  // origin so they load in the split-domain deploy too.
+  const src = resolveAssetUrl(user.avatar);
   return (
     <Avatar className={cn(className)}>
       {src ? <AvatarImage src={src} alt={user.name} /> : null}

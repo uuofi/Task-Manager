@@ -155,7 +155,29 @@
       "PowerShell(docker compose version)",
       "Bash(pip install *)",
       "Bash(echo \"client lint exit: $?\")",
-      "Bash(echo \"vite.config.js lint exit: $?\")"
+      "Bash(echo \"vite.config.js lint exit: $?\")",
+      "Bash(gh --version)",
+      "Bash(gh secret *)",
+      "PowerShell(gh --version)",
+      "PowerShell(gh secret list --repo uuofi/Task-Manager)",
+      "Bash(DEPLOY_HOST=1.2.3.4 DEPLOY_USER=root DEPLOY_SSH_KEY='' bash -c ' *)",
+      "PowerShell($p = \"$env:USERPROFILE\\\\.ssh\"; if \\(Test-Path $p\\) { Get-ChildItem $p | Select-Object Name, Length } else { \"no .ssh directory yet\" }; \"--- ssh-keygen available? ---\"; \\(Get-Command ssh-keygen -ErrorAction SilentlyContinue\\).Source)",
+      "Read(//c/Users/alnaseem/.ssh/**)",
+      "Read(//c/Users/alnaseem/**)",
+      "Bash(ssh-keygen -t ed25519 -C \"github-deploy-taskcontrol\" -f ~/.ssh/deploy_key -N \"\")",
+      "Bash(cat ~/.ssh/deploy_key.pub)",
+      "PowerShell(Get-Content \"$env:USERPROFILE\\\\.ssh\\\\deploy_key\" -Raw | Set-Clipboard; \"Private key copied to clipboard \\($\\(\\(\\(Get-Content \"$env:USERPROFILE\\\\.ssh\\\\deploy_key\"\\) | Measure-Object -Line\\).Lines\\) lines\\).\"; \"First line: $\\(\\(Get-Content \"$env:USERPROFILE\\\\.ssh\\\\deploy_key\"\\)[0]\\)\"; \"Last line:  $\\(\\(Get-Content \"$env:USERPROFILE\\\\.ssh\\\\deploy_key\"\\)[-1]\\)\")",
+      "Bash(command -v openssl)",
+      "Bash(openssl rand *)",
+      "Bash(echo \"JWT_ACCESS_SECRET=$\\(openssl rand -hex 64\\)\")",
+      "Bash(echo \"JWT_REFRESH_SECRET=$\\(openssl rand -hex 64\\)\")",
+      "Bash(echo \"COOKIE_SECRET=$\\(openssl rand -hex 64\\)\")",
+      "Bash(echo \"MONGO_ROOT_PASSWORD=$\\(openssl rand -hex 24\\)\")",
+      "Bash(grep -iv \"//.*\")",
+      "Bash(cp .env.example .env.validate)",
+      "Bash(rm -f .env.validate)",
+      "PowerShell(cd 'c:\\\\Users\\\\alnaseem\\\\OneDrive\\\\Desktop\\\\tasckControl'; docker compose --env-file .env.example -f docker-compose.yml config --quiet 2>&1 | Select-Object -First 20; if \\($LASTEXITCODE -eq 0\\) { \"COMPOSE_OK\" } else { \"COMPOSE_FAIL:$LASTEXITCODE\" })",
+      "Bash(VITE_API_URL=\"https://api.taskat.site/api/v1\" VITE_SOCKET_URL=\"https://api.taskat.site\" npm run build)"
     ]
   }
 }

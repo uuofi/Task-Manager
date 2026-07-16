@@ -15,32 +15,21 @@ x-logging: &default-logging
     max-file: "3"
 
 services:
-  # ---------------------------------------------------------------- edge proxy
-  # The ONLY service published to the host. TLS + routing.
-  caddy:
-    image: caddy:2.8-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp" # HTTP/3
-    environment:
-      SITE_ADDRESS: ${SITE_ADDRESS:?set SITE_ADDRESS in .env}
-      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data # issued certificates — losing this re-requests certs
-      - caddy_config:/config
-    depends_on:
-      - client
-      - server
-    networks: [edge]
-    logging: *default-logging
+  # ------------------------------------------------------------------ routing
+  # TLS + host routing is handled by an EXTERNAL reverse proxy on the host
+  # (the hosting control panel). It proxies:
+  #   https://taskat.site      -> 127.0.0.1:8080  (client, this file)
+  #   https://api.taskat.site  -> 127.0.0.1:5050  (server, below)
+  # Ports bind to 127.0.0.1 so the containers stay off the public internet and
+  # are only reachable through that proxy. If the proxy itself runs in a
+  # container (not on the host), change the bind to 0.0.0.0 or the host IP.
 
   # -------------------------------------------------------------------- client
   client:
     image: ${GHCR_REPO:?set GHCR_REPO in .env}-client:${IMAGE_TAG:-latest}
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:4173:80"
     networks: [edge]
     logging: *default-logging
 
@@ -48,6 +37,8 @@ services:
   server:
     image: ${GHCR_REPO:?set GHCR_REPO in .env}-server:${IMAGE_TAG:-latest}
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:5051:5050"
     env_file: [.env]
     environment:
       NODE_ENV: production
@@ -115,7 +106,8 @@ services:
     logging: *default-logging
 
 networks:
-  # Public-facing path: caddy -> client/server.
+  # Shared bridge for client + server; each is also published to 127.0.0.1 for
+  # the host's reverse proxy.
   edge:
   # Data path: server -> mongo/redis. `internal: true` means no route out to the
   # internet, so the databases cannot be reached from outside the host.
@@ -127,5 +119,3 @@ volumes:
   redis_data:
   uploads:
   logs:
-  caddy_data:
-  caddy_config:
