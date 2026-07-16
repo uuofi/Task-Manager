@@ -24,7 +24,7 @@ const __dirname = path.dirname(__filename);
 /**
  * Builds and configures the Express application. Kept separate from the HTTP
  * server bootstrap (server.js) so it can be imported in tests without binding
- * a port.
+ * a port
  */
 export const createApp = () => {
   const app = express();
