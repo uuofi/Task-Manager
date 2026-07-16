@@ -194,6 +194,11 @@ jobs:
 
       # Only the compose config travels; /opt/taskcontrol/.env lives on the
       # server and is deliberately never overwritten from CI.
+      - name: Debug SSH key
+        run: |
+         echo "${{ secrets.DEPLOY_SSH_KEY }}" > /tmp/key
+         chmod 600 /tmp/key
+         ssh-keygen -lf /tmp/key
       - name: Copy compose files to server
         uses: appleboy/scp-action@v0.1.7
         with:
