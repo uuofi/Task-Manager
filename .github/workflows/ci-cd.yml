@@ -196,17 +196,10 @@ jobs:
       # server and is deliberately never overwritten from CI.
       - name: Debug SSH key
         run: |
-         echo "${{ secrets.DEPLOY_SSH_KEY }}" > /tmp/key
-         chmod 600 /tmp/key
-         ssh-keygen -lf /tmp/key
-               - name: Debug SSH key
-         run: |
           cat > /tmp/id_ed25519 << 'EOF'
           ${{ secrets.DEPLOY_SSH_KEY }}
           EOF
-
           chmod 600 /tmp/id_ed25519
-
           echo "===== Fingerprint ====="
           ssh-keygen -lf /tmp/id_ed25519
 
@@ -220,15 +213,6 @@ jobs:
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
             exit
 
-      - name: Copy compose files to server
-        uses: appleboy/scp-action@v1.0.0
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: ${{ secrets.DEPLOY_PORT || 22 }}
-          source: "docker-compose.yml"
-          target: /opt/taskcontrol
       - name: Copy compose files to server
         uses: appleboy/scp-action@v1.0.0
         with:
